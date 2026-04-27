@@ -1,6 +1,7 @@
-DROP JAVA SOURCE DEV."BDKISignSHA256RSA";
+DROP JAVA SOURCE DEV."BDKISnapTokenJava";
+SET DEFINE OFF;
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISignSHA256RSA"
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSnapTokenJava"
 as import java.nio.charset.StandardCharsets;
     import java.security.KeyFactory;
     import java.security.Signature;
@@ -8,7 +9,7 @@ as import java.nio.charset.StandardCharsets;
     import java.util.Base64;
     import java.util.Formatter;
 
-    public class BDKISignSHA256RSA {
+    public class BJKTSnapTokenJava {
 
         public static String sign(String v_private_key, String v_string_to_sign) throws Exception {
             String base64Signature = signSHA256RSA(v_string_to_sign, v_private_key);

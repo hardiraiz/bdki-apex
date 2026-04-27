@@ -1,0 +1,8 @@
+create or replace package "APX_SSO_INTEGRATIONS" as
+    
+    FUNCTION GET_ACCESS_TOKEN (
+        P_TIMESTAMP IN VARCHAR2
+    ) RETURN VARCHAR2;
+
+end "APX_SSO_INTEGRATIONS";
+/

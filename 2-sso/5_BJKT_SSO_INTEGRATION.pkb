@@ -1,0 +1,255 @@
+create or replace package body "APX_SSO_INTEGRATIONS" 
+as
+    L_BANK_JKT    VARCHAR2 (100) := 'BJKT';
+
+    PROCEDURE IFACE_LOG (
+        P_LOG       IN  BJKT_API_LOG%ROWTYPE,
+        X_LOG_ID    OUT VARCHAR2,
+        X_STATUS    OUT VARCHAR2
+    ) IS
+    BEGIN
+        INSERT INTO BJKT_API_LOG (
+            NAME,
+            URL,
+            CONTENT_TYPE,
+            AUTHORIZATION,
+            PARTNER_ID,
+            TIME_STAMP,
+            SIGNATURE,
+            EXTERNAL_ID,
+            CHANNEL_ID,
+            RAY_ID,
+            ACCESS_TOKEN,
+            HEADER,
+            REQUEST,
+            RESPONSE,
+            ATTRIBUTE_CATEGORY,
+            ATTRIBUTE1,
+            ATTRIBUTE2,
+            ATTRIBUTE3,
+            ATTRIBUTE4,
+            ATTRIBUTE5,
+            ATTRIBUTE6,
+            ATTRIBUTE7,
+            ATTRIBUTE8,
+            ATTRIBUTE9,
+            ATTRIBUTE10,
+            ATTRIBUTE11,
+            ATTRIBUTE12,
+            ATTRIBUTE13,
+            ATTRIBUTE14,
+            ATTRIBUTE15,
+            IFACE_MODE,
+            IFACE_STATUS,
+            IFACE_MESSAGE,
+            CREATED_BY,
+            CREATION_DATE,
+            LAST_UPDATE_LOGIN,
+            LAST_UPDATED_BY,
+            LAST_UPDATE_DATE
+        ) VALUES (
+            P_LOG.NAME,
+            P_LOG.URL,
+            P_LOG.CONTENT_TYPE,
+            P_LOG.AUTHORIZATION,
+            P_LOG.PARTNER_ID,
+            P_LOG.TIME_STAMP,
+            P_LOG.SIGNATURE,
+            P_LOG.EXTERNAL_ID,
+            P_LOG.CHANNEL_ID,
+            P_LOG.RAY_ID,
+            P_LOG.ACCESS_TOKEN,
+            P_LOG.HEADER,
+            P_LOG.REQUEST,
+            P_LOG.RESPONSE,
+            P_LOG.ATTRIBUTE_CATEGORY,
+            P_LOG.ATTRIBUTE1,
+            P_LOG.ATTRIBUTE2,
+            P_LOG.ATTRIBUTE3,
+            P_LOG.ATTRIBUTE4,
+            P_LOG.ATTRIBUTE5,
+            P_LOG.ATTRIBUTE6,
+            P_LOG.ATTRIBUTE7,
+            P_LOG.ATTRIBUTE8,
+            P_LOG.ATTRIBUTE9,
+            P_LOG.ATTRIBUTE10,
+            P_LOG.ATTRIBUTE11,
+            P_LOG.ATTRIBUTE12,
+            P_LOG.ATTRIBUTE13,
+            P_LOG.ATTRIBUTE14,
+            P_LOG.ATTRIBUTE15,
+            P_LOG.IFACE_MODE,
+            P_LOG.IFACE_STATUS,
+            P_LOG.IFACE_MESSAGE,
+            P_LOG.CREATED_BY,
+            P_LOG.CREATION_DATE,
+            P_LOG.LAST_UPDATE_LOGIN,
+            P_LOG.LAST_UPDATED_BY,
+            P_LOG.LAST_UPDATE_DATE
+        ) RETURNING LOG_ID INTO X_LOG_ID;
+
+        X_STATUS := 'SUCCESS';
+
+        COMMIT;
+    EXCEPTION
+        WHEN OTHERS
+        THEN
+            X_LOG_ID := NULL;
+            X_STATUS := 'ERROR';
+    END IFACE_LOG;
+
+
+    FUNCTION GET_ACCESS_TOKEN (P_TIMESTAMP IN VARCHAR2)
+        RETURN VARCHAR2
+    AS
+        L_TIMESTAMP          VARCHAR2 (200);
+        L_CLIENT_ID          VARCHAR2 (1000);
+        L_PRIVATE_KEY        VARCHAR2 (4000);
+        L_URL                VARCHAR2 (4000);
+        L_PATH               VARCHAR2 (4000);
+        L_WALLET_PATH        VARCHAR2 (4000);
+        L_WALLET_PASSWORD    VARCHAR2 (4000);
+        L_CLEAN_KEY          VARCHAR2 (4000);
+        L_STRINGTOSIGN       VARCHAR2 (4000);
+        L_SIGNATURE          VARCHAR2 (4000);
+        L_RAY_ID             VARCHAR2 (20);
+        L_BODY               CLOB;
+        L_RESULT_CLOB        CLOB;
+        L_HEADER             CLOB;
+        L_TOKEN              VARCHAR2 (4000);
+        L_RESPONSE_MESSAGE   VARCHAR2 (4000);
+        L_RESPONSE_CODE      VARCHAR2 (4000);
+
+        L_LOG                BJKT_API_LOG%ROWTYPE;
+        L_LOG_ID             VARCHAR2 (100);
+        L_LOG_STATUS         VARCHAR2 (100);
+    BEGIN
+        L_TIMESTAMP := P_TIMESTAMP;
+
+        SELECT CLIENT_ID,
+               PRIVATE_KEY,
+               URL,
+               ATTRIBUTE1,
+               WALLET_PATH,
+               WALLET_PASSWORD
+          INTO L_CLIENT_ID,
+               L_PRIVATE_KEY,
+               L_URL,
+               L_PATH,
+               L_WALLET_PATH,
+               L_WALLET_PASSWORD
+        FROM BJKT_FND_CREDENTIAL
+        WHERE NAME = L_BANK_JKT
+        FETCH FIRST 1 ROW ONLY;
+
+        L_CLEAN_KEY := REPLACE (L_PRIVATE_KEY, CHR (10), '');
+        L_CLEAN_KEY := REPLACE (L_CLEAN_KEY, CHR (13), '');
+
+        L_STRINGTOSIGN := L_CLIENT_ID || '|' || L_TIMESTAMP;
+
+        L_SIGNATURE := 
+            BJKT_JAVA_PKG.SNAP_TOKEN_64 (
+                P_PRIVATE_KEY      => L_CLEAN_KEY,
+                P_STRING_TO_SIGN   => L_STRINGTOSIGN
+            );
+        
+        L_RAY_ID := BJKT_JAVA_PKG.GET_RAY_ID();
+
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS.DELETE;
+
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).NAME := 'Content-Type';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE := 'application/json';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).NAME := 'X-TIMESTAMP';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE := L_TIMESTAMP;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).NAME := 'X-CHANNEL-KEY';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE := L_CLIENT_ID;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).NAME := 'X-SIGNATURE';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE := L_SIGNATURE;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).NAME := 'X-RAY-ID';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).VALUE := L_RAY_ID;
+
+        FOR I IN 1 .. APEX_WEB_SERVICE.G_REQUEST_HEADERS.COUNT
+        LOOP
+            L_HEADER :=
+                   L_HEADER
+                || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).NAME
+                || ': '
+                || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).VALUE
+                || CHR (10);
+        END LOOP;
+
+        L_BODY := '{ "grantType": "client_credentials" }';
+
+        L_RESULT_CLOB :=
+            APEX_WEB_SERVICE.MAKE_REST_REQUEST (
+                P_URL           => L_URL || '/' || L_PATH,
+                P_HTTP_METHOD   => 'POST',
+                P_WALLET_PATH   => L_WALLET_PATH,
+                P_WALLET_PWD    => L_WALLET_PASSWORD,
+                P_BODY          => L_BODY
+            );
+
+        DBMS_OUTPUT.PUT_LINE ('L_RESULT_CLOB    => ' || TO_CHAR (L_RESULT_CLOB));
+        
+        APEX_JSON.PARSE (TO_CHAR (L_RESULT_CLOB));
+        
+        L_TOKEN             := APEX_JSON.GET_VARCHAR2 (P_PATH => 'accessToken');
+        L_RESPONSE_MESSAGE  := APEX_JSON.GET_VARCHAR2 (P_PATH => 'responseMessage');
+        L_RESPONSE_CODE     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'responseCode');
+
+        L_LOG.URL           := L_URL || '/' || L_PATH;
+        L_LOG.NAME          := L_BANK_JKT;
+        L_LOG.RAY_ID        := L_RAY_ID;
+        L_LOG.ACCESS_TOKEN  := L_TOKEN;
+        L_LOG.REQUEST       := L_BODY;
+        L_LOG.RESPONSE      := L_RESULT_CLOB;
+        L_LOG.IFACE_MODE    := 'POST';
+
+        IF L_RESPONSE_CODE = '0000'
+        THEN
+            L_LOG.IFACE_STATUS := 'SUCCESS';
+        ELSE
+            L_LOG.IFACE_STATUS  := 'ERROR';
+            L_LOG.IFACE_MESSAGE := L_RESPONSE_MESSAGE;
+        END IF;
+
+        L_LOG.CONTENT_TYPE  := APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE;
+        L_LOG.PARTNER_ID    := APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE;
+        L_LOG.TIME_STAMP    := APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE;
+        L_LOG.SIGNATURE     := APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE;
+        L_LOG.HEADER        := L_HEADER;
+
+        IFACE_LOG (P_LOG      => L_LOG,
+                   X_LOG_ID   => L_LOG_ID,
+                   X_STATUS   => L_LOG_STATUS);
+
+        RETURN L_TOKEN;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            L_LOG.URL           := L_URL || '/' || L_PATH;
+            L_LOG.NAME          := L_BANK_JKT;
+            L_LOG.RAY_ID        := L_RAY_ID;
+            L_LOG.ACCESS_TOKEN  := L_TOKEN;
+            L_LOG.REQUEST       := L_BODY;
+            L_LOG.RESPONSE      := L_RESULT_CLOB;
+
+            L_LOG.CONTENT_TYPE  := APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE;
+            L_LOG.PARTNER_ID    := APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE;
+            L_LOG.TIME_STAMP    := APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE;
+            L_LOG.SIGNATURE     := APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE;
+            L_LOG.HEADER        := L_HEADER;
+
+            L_LOG.IFACE_STATUS  := 'ERROR';
+            L_LOG.IFACE_MODE    := 'POST';
+            L_LOG.IFACE_MESSAGE := SQLERRM;
+
+            IFACE_LOG (P_LOG      => L_LOG,
+                       X_LOG_ID   => L_LOG_ID,
+                       X_STATUS   => L_LOG_STATUS);
+
+    END GET_ACCESS_TOKEN;
+
+
+end "APX_SSO_INTEGRATIONS";
+/

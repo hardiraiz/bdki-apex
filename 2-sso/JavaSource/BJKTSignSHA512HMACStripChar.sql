@@ -1,6 +1,8 @@
-DROP JAVA SOURCE DEV."BDKIHexEncode256RequestBody";
+DROP JAVA SOURCE DEV."BDKISignSHA512HMACStripChar";
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKIHexEncode256RequestBody"
+SET DEFINE OFF;
+
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSignSHA512HMACStripChar"
 as import java.nio.charset.StandardCharsets;
     import java.security.MessageDigest;
     import java.security.NoSuchAlgorithmException;
@@ -9,9 +11,9 @@ as import java.nio.charset.StandardCharsets;
     import javax.crypto.spec.SecretKeySpec;
     import java.util.Base64;
 
-    public class BDKIHexEncode256RequestBody {
+    public class BJKTSignSHA512HMACStripChar {
 
-        public static String sign(String v_request_body) throws Exception {
+        public static String sign(String v_client_secret, String v_http_method, String v_url_x, String v_token,  String v_request_body, String v_timestamp) throws Exception {
             String hexEncode;
             if (v_request_body != null) {
                 hexEncode = hash256(v_request_body);
@@ -19,7 +21,8 @@ as import java.nio.charset.StandardCharsets;
             else {
                 hexEncode = v_request_body;
             }
-            return hexEncode;
+            String stringToSign = v_http_method + ":" + v_url_x + ":" + v_token + ":" + hexEncode + ":" + v_timestamp;
+            return Base64.getEncoder().encodeToString(calculateHMACSHA512(stringToSign, v_client_secret));
         }
 
         public static String hash256(String input) throws NoSuchAlgorithmException {

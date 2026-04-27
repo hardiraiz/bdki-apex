@@ -1,6 +1,7 @@
 DROP JAVA SOURCE DEV."BDKISnapSignatureJava";
+SET DEFINE OFF;
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISnapSignatureJava"
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSnapSignatureJava"
 as import java.nio.charset.StandardCharsets;
     import java.security.MessageDigest;
     import java.security.NoSuchAlgorithmException;
@@ -10,7 +11,7 @@ as import java.nio.charset.StandardCharsets;
     import java.util.Base64;
     import java.util.Formatter;
 
-    public class BDKISnapSignatureJava {
+    public class BJKTSnapSignatureJava {
 
         public static String sign(String v_client_secret, String v_http_method, String v_url_x, String v_token, String v_timestamp, String v_request_body) throws Exception {
             String hexEncode;

@@ -1,13 +1,16 @@
-DROP JAVA SOURCE DEV."BDKISnapTokenJava64";
+DROP JAVA SOURCE DEV."BDKISignSHA256RSA";
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISnapTokenJava64"
+SET DEFINE OFF;
+
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSignSHA256RSA"
 as import java.nio.charset.StandardCharsets;
     import java.security.KeyFactory;
     import java.security.Signature;
     import java.security.spec.PKCS8EncodedKeySpec;
     import java.util.Base64;
+    import java.util.Formatter;
 
-    public class BDKISnapTokenJava64 {
+    public class BJKTSignSHA256RSA {
 
         public static String sign(String v_private_key, String v_string_to_sign) throws Exception {
             String base64Signature = signSHA256RSA(v_string_to_sign, v_private_key);
@@ -27,7 +30,17 @@ as import java.nio.charset.StandardCharsets;
             privateSignature.initSign(kf.generatePrivate(spec));
             privateSignature.update(input.getBytes("UTF-8"));
             byte[] s = privateSignature.sign();
-            return Base64.getEncoder().encodeToString(s);
+            return toHexString(s);
+        }
+
+        private static String toHexString(byte[] bytes) {
+            Formatter formatter = new Formatter();
+            for (byte b : bytes) {
+                formatter.format("%02x", b);
+            }
+            String output = formatter.toString();
+            formatter.close();
+            return output;
         }
     }
 /

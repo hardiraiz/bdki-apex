@@ -1,7 +1,8 @@
 /* Formatted on 10/13/2025 10:48:44 AM (QP5 v5.362) */
 DROP JAVA SOURCE DEV."BDKISignSHA512HMACStripCharPan";
+SET DEFINE OFF;
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISignSHA512HMACStripCharPan"
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSignSHA512HMACStripCharPan"
     AS import java.nio.charset.StandardCharsets;
     import java.security.MessageDigest;
     import java.security.NoSuchAlgorithmException;
@@ -10,7 +11,7 @@ CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISignSHA512HMACStripChar
     import javax.crypto.spec.SecretKeySpec;
     import java.util.Base64;
 
-    public class BDKISignSHA512HMACStripCharPan {
+    public class BJKTSignSHA512HMACStripCharPan {
 
         public static String sign(String v_client_secret, String v_http_method, String v_url_x, String v_token,  String v_request_body, String v_timestamp) throws Exception {
             String hexEncode;

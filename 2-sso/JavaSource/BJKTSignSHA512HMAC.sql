@@ -1,6 +1,8 @@
 DROP JAVA SOURCE DEV."BDKISignSHA512HMAC";
 
-CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BDKISignSHA512HMAC"
+SET DEFINE OFF;
+
+CREATE OR REPLACE AND RESOLVE JAVA SOURCE NAMED DEV."BJKTSignSHA512HMAC"
 as import java.nio.charset.StandardCharsets;
     import java.security.MessageDigest;
     import java.security.NoSuchAlgorithmException;
@@ -9,7 +11,7 @@ as import java.nio.charset.StandardCharsets;
     import javax.crypto.spec.SecretKeySpec;
     import java.util.Base64;
 
-    public class BDKISignSHA512HMAC {
+    public class BJKTSignSHA512HMAC {
 
         public static String sign(String v_client_secret, String v_http_method, String v_url_x, String v_token,  String v_request_body, String v_timestamp) throws Exception {
             String hexEncode;
