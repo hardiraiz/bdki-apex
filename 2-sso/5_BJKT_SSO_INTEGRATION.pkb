@@ -1,4 +1,4 @@
-create or replace package body "APX_SSO_INTEGRATIONS" 
+create or replace package body "BJKT_SSO_INTEGRATIONS_PKG" 
 as
     L_BANK_JKT    VARCHAR2 (100) := 'BJKT';
 
@@ -125,79 +125,75 @@ as
         L_LOG_STATUS         VARCHAR2 (100);
     BEGIN
         L_TIMESTAMP := P_TIMESTAMP;
+        L_PATH      := 'get-token';
 
         SELECT CLIENT_ID,
                PRIVATE_KEY,
                URL,
-               ATTRIBUTE1,
                WALLET_PATH,
                WALLET_PASSWORD
           INTO L_CLIENT_ID,
                L_PRIVATE_KEY,
                L_URL,
-               L_PATH,
                L_WALLET_PATH,
                L_WALLET_PASSWORD
         FROM BJKT_FND_CREDENTIAL
         WHERE NAME = L_BANK_JKT
         FETCH FIRST 1 ROW ONLY;
 
-        L_CLEAN_KEY := REPLACE (L_PRIVATE_KEY, CHR (10), '');
-        L_CLEAN_KEY := REPLACE (L_CLEAN_KEY, CHR (13), '');
-
         L_STRINGTOSIGN := L_CLIENT_ID || '|' || L_TIMESTAMP;
 
         L_SIGNATURE := 
-            BJKT_JAVA_PKG.SNAP_TOKEN_64 (
-                P_PRIVATE_KEY      => L_CLEAN_KEY,
-                P_STRING_TO_SIGN   => L_STRINGTOSIGN
+            BJKT_JAVA_PKG.HASH256 (
+                P_INPUT   => L_STRINGTOSIGN
             );
         
         L_RAY_ID := BJKT_JAVA_PKG.GET_RAY_ID();
 
         APEX_WEB_SERVICE.G_REQUEST_HEADERS.DELETE;
 
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).NAME := 'Content-Type';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE := 'application/json';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).NAME := 'X-TIMESTAMP';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE := L_TIMESTAMP;
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).NAME := 'X-CHANNEL-KEY';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE := L_CLIENT_ID;
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).NAME := 'X-SIGNATURE';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE := L_SIGNATURE;
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).NAME := 'X-RAY-ID';
-        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).VALUE := L_RAY_ID;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).NAME     := 'Content-Type';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE    := 'application/json';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).NAME     := 'X-TIMESTAMP';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE    := L_TIMESTAMP;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).NAME     := 'X-CHANNEL-KEY';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE    := L_CLIENT_ID;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).NAME     := 'X-SIGNATURE';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE    := L_SIGNATURE;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).NAME     := 'X-RAY-ID';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).VALUE    := L_RAY_ID;
 
         FOR I IN 1 .. APEX_WEB_SERVICE.G_REQUEST_HEADERS.COUNT
         LOOP
-            L_HEADER :=
-                   L_HEADER
-                || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).NAME
-                || ': '
-                || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).VALUE
-                || CHR (10);
+            L_HEADER := L_HEADER
+                        || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).NAME
+                        || ': '
+                        || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).VALUE
+                        || CHR (10);
         END LOOP;
 
         L_BODY := '{ "grantType": "client_credentials" }';
 
         L_RESULT_CLOB :=
             APEX_WEB_SERVICE.MAKE_REST_REQUEST (
-                P_URL           => L_URL || '/' || L_PATH,
+                P_URL           => L_URL || '/service-sso/' || L_PATH,
                 P_HTTP_METHOD   => 'POST',
-                P_WALLET_PATH   => L_WALLET_PATH,
-                P_WALLET_PWD    => L_WALLET_PASSWORD,
                 P_BODY          => L_BODY
+                -- P_WALLET_PATH   => L_WALLET_PATH,
+                -- P_WALLET_PWD    => L_WALLET_PASSWORD
             );
 
         DBMS_OUTPUT.PUT_LINE ('L_RESULT_CLOB    => ' || TO_CHAR (L_RESULT_CLOB));
         
         APEX_JSON.PARSE (TO_CHAR (L_RESULT_CLOB));
-        
-        L_TOKEN             := APEX_JSON.GET_VARCHAR2 (P_PATH => 'accessToken');
-        L_RESPONSE_MESSAGE  := APEX_JSON.GET_VARCHAR2 (P_PATH => 'responseMessage');
-        L_RESPONSE_CODE     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'responseCode');
 
-        L_LOG.URL           := L_URL || '/' || L_PATH;
+        L_TOKEN             := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.access_token');
+        L_RESPONSE_MESSAGE  := APEX_JSON.GET_VARCHAR2 (P_PATH => 'status');
+        L_RESPONSE_CODE     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'statusCode');
+        -- L_TIMESTAMP     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.timestamp');
+        -- L_EXPIRES_IN    := APEX_JSON.GET_NUMBER   (P_PATH => 'result.expires_in');
+
+        L_LOG.URL           := L_URL || '/service-sso/' || L_PATH;
         L_LOG.NAME          := L_BANK_JKT;
         L_LOG.RAY_ID        := L_RAY_ID;
         L_LOG.ACCESS_TOKEN  := L_TOKEN;
@@ -227,7 +223,7 @@ as
 
     EXCEPTION
         WHEN OTHERS THEN
-            L_LOG.URL           := L_URL || '/' || L_PATH;
+            L_LOG.URL           := L_URL || '/service-sso/' || L_PATH;
             L_LOG.NAME          := L_BANK_JKT;
             L_LOG.RAY_ID        := L_RAY_ID;
             L_LOG.ACCESS_TOKEN  := L_TOKEN;
@@ -248,8 +244,98 @@ as
                        X_LOG_ID   => L_LOG_ID,
                        X_STATUS   => L_LOG_STATUS);
 
+            RETURN NULL;
+
     END GET_ACCESS_TOKEN;
 
+    PROCEDURE GET_MASTER_DIVISION (
+        R_STATUS    OUT VARCHAR2,
+        R_MESSAGE   OUT VARCHAR2
+    ) 
+    IS
+        L_ENDPOINT_URL      VARCHAR2(1000) DEFAULT '/api/v3/get-list-all-divisi';
+        L_TIMESTAMP         VARCHAR2(200);
+        L_TOKEN             VARCHAR2(4000);
+        L_CLIENT_ID         VARCHAR2(1000);
+        L_PRIVATE_KEY       VARCHAR2(4000);
+        L_SIGNATURE         VARCHAR2(4000);
+        L_SECRET_KEY        VARCHAR2(4000);
+        L_RAY_ID            VARCHAR2(20);
+        L_HEADER            CLOB;
+        L_BODY              CLOB;
+        L_RESULT_CLOB       CLOB;
+        L_URL               VARCHAR2(4000);
+        L_WALLET_PATH       VARCHAR2(4000);
+        L_WALLET_PASSWORD   VARCHAR2(4000);
+    BEGIN
+        L_TIMESTAMP := TO_CHAR (SYSTIMESTAMP, 'rrrr-mm-dd') 
+                        || 'T'
+                        || TO_CHAR (SYSTIMESTAMP, 'hh24:mi:ssTZR');
 
-end "APX_SSO_INTEGRATIONS";
+        L_TOKEN     := GET_ACCESS_TOKEN(L_TIMESTAMP);
+        L_RAY_ID    := BJKT_JAVA_PKG.GET_RAY_ID();
+
+        SELECT CLIENT_ID,
+               PRIVATE_KEY,
+               URL,
+               WALLET_PATH,
+               WALLET_PASSWORD,
+               SECRET_KEY
+          INTO L_CLIENT_ID,
+               L_PRIVATE_KEY,
+               L_URL,
+               L_WALLET_PATH,
+               L_WALLET_PASSWORD,
+               L_SECRET_KEY
+        FROM BJKT_FND_CREDENTIAL
+        WHERE NAME = L_BANK_JKT
+        FETCH FIRST 1 ROW ONLY;
+
+        L_SIGNATURE :=
+            BJKT_JAVA_PKG.SNAP_SIGNATURE_SHA512HMAC_PAN (
+                P_CLIENT_SECRET   => L_SECRET_KEY,
+                P_HTTP_METHOD     => 'POST',
+                P_URL_X           => L_ENDPOINT_URL,
+                P_TOKEN           => L_TOKEN,
+                P_REQUEST_BODY    => L_BODY,
+                P_TIMESTAMP       => L_TIMESTAMP
+            );
+
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS.DELETE;
+
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).NAME     := 'Content-Type';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (1).VALUE    := 'application/json';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).NAME     := 'Authorization';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (2).VALUE    := 'Bearer ' || L_TOKEN;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).NAME     := 'X-TIMESTAMP';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (3).VALUE    := L_TIMESTAMP;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).NAME     := 'X-CHANNEL-KEY';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (4).VALUE    := L_CLIENT_ID;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).NAME     := 'X-SIGNATURE';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (5).VALUE    := L_SIGNATURE;
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (6).NAME     := 'X-RAY-ID';
+        APEX_WEB_SERVICE.G_REQUEST_HEADERS (6).VALUE    := L_RAY_ID;
+
+        FOR I IN 1 .. APEX_WEB_SERVICE.G_REQUEST_HEADERS.COUNT
+        LOOP
+            L_HEADER := L_HEADER
+                        || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).NAME
+                        || ': '
+                        || APEX_WEB_SERVICE.G_REQUEST_HEADERS (I).VALUE
+                        || CHR (10);
+        END LOOP;
+
+        L_RESULT_CLOB :=
+            APEX_WEB_SERVICE.MAKE_REST_REQUEST (
+                P_URL           => L_URL || '/service-sso/' || L_ENDPOINT_URL,
+                P_HTTP_METHOD   => 'GET',
+                P_WALLET_PATH   => L_WALLET_PATH,
+                P_WALLET_PWD    => L_WALLET_PASSWORD
+            );
+
+
+    END GET_MASTER_DIVISION;
+
+
+end "BJKT_SSO_INTEGRATIONS_PKG";
 /

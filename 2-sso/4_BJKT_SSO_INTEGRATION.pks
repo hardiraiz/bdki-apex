@@ -1,8 +1,13 @@
-create or replace package "APX_SSO_INTEGRATIONS" as
+create or replace package "BJKT_SSO_INTEGRATIONS_PKG" as
     
     FUNCTION GET_ACCESS_TOKEN (
         P_TIMESTAMP IN VARCHAR2
     ) RETURN VARCHAR2;
 
-end "APX_SSO_INTEGRATIONS";
+    PROCEDURE GET_MASTER_DIVISION (
+        R_STATUS    OUT VARCHAR2,
+        R_MESSAGE   OUT VARCHAR2
+    );
+
+end "BJKT_SSO_INTEGRATIONS_PKG";
 /

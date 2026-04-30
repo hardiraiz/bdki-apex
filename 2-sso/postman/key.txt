@@ -1,0 +1,2 @@
+channelid: APEX
+channel_secret: dAb2VerDdx3Q7U6TEqu8oKE0bMhXeuft
