@@ -1,6 +1,7 @@
 create or replace package body "BJKT_SSO_INTEGRATIONS_PKG" 
 as
     L_BANK_JKT    VARCHAR2 (100) := 'BJKT';
+    L_API_GROUP   VARCHAR2 (100) := '/service-sso/';
 
     PROCEDURE IFACE_LOG (
         P_LOG       IN  BJKT_API_LOG%ROWTYPE,
@@ -98,6 +99,32 @@ as
             X_STATUS := 'ERROR';
     END IFACE_LOG;
 
+    FUNCTION GET_EXIST_TOKEN RETURN VARCHAR2
+    IS
+        L_ACCESS_TOKEN      VARCHAR2(4000);
+        L_TIMESTAMP_TOKEN   VARCHAR2(200);
+        L_EXPIRED_IN        NUMBER;
+    BEGIN
+        SELECT ACCESS_TOKEN, TIMESTAMP_TOKEN, EXPIRED_IN
+        INTO L_ACCESS_TOKEN, L_TIMESTAMP_TOKEN, L_EXPIRED_IN
+        FROM BJKT_ACCESS_TOKEN
+        ORDER BY ID DESC
+        FETCH FIRST 1 ROW ONLY;
+
+        IF SYSTIMESTAMP > 
+            (TO_TIMESTAMP_TZ(L_TIMESTAMP_TOKEN, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') 
+            + NUMTODSINTERVAL(L_EXPIRED_IN - 60, 'SECOND'))
+        THEN
+            RETURN NULL;
+        END IF;
+
+        RETURN L_ACCESS_TOKEN;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN NULL;
+    END;
+
 
     FUNCTION GET_ACCESS_TOKEN (P_TIMESTAMP IN VARCHAR2)
         RETURN VARCHAR2
@@ -119,11 +146,19 @@ as
         L_TOKEN              VARCHAR2 (4000);
         L_RESPONSE_MESSAGE   VARCHAR2 (4000);
         L_RESPONSE_CODE      VARCHAR2 (4000);
+        L_RESPONSE_TIMESTAMP VARCHAR2 (200);
+        L_EXPIRED_IN         NUMBER;
 
         L_LOG                BJKT_API_LOG%ROWTYPE;
         L_LOG_ID             VARCHAR2 (100);
         L_LOG_STATUS         VARCHAR2 (100);
     BEGIN
+        L_TOKEN := GET_EXIST_TOKEN();
+        IF L_TOKEN IS NOT NULL THEN 
+            RETURN L_TOKEN;
+        END IF;
+
+        -- Continue to generate access token when existing token expired or not exists
         L_TIMESTAMP := P_TIMESTAMP;
         L_PATH      := 'get-token';
 
@@ -172,28 +207,34 @@ as
                         || CHR (10);
         END LOOP;
 
-        L_BODY := '{ "grantType": "client_credentials" }';
+        -- L_BODY := '{ "grantType": "client_credentials" }';
 
         L_RESULT_CLOB :=
             APEX_WEB_SERVICE.MAKE_REST_REQUEST (
-                P_URL           => L_URL || '/service-sso/' || L_PATH,
-                P_HTTP_METHOD   => 'POST',
-                P_BODY          => L_BODY
+                P_URL           => L_URL || L_API_GROUP || L_PATH,
+                P_HTTP_METHOD   => 'POST'
+                -- P_BODY          => L_BODY
                 -- P_WALLET_PATH   => L_WALLET_PATH,
                 -- P_WALLET_PWD    => L_WALLET_PASSWORD
             );
 
-        DBMS_OUTPUT.PUT_LINE ('L_RESULT_CLOB    => ' || TO_CHAR (L_RESULT_CLOB));
+        -- DBMS_OUTPUT.PUT_LINE ('L_RESULT_CLOB    => ' || TO_CHAR (L_RESULT_CLOB));
         
         APEX_JSON.PARSE (TO_CHAR (L_RESULT_CLOB));
 
-        L_TOKEN             := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.access_token');
-        L_RESPONSE_MESSAGE  := APEX_JSON.GET_VARCHAR2 (P_PATH => 'status');
-        L_RESPONSE_CODE     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'statusCode');
-        -- L_TIMESTAMP     := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.timestamp');
-        -- L_EXPIRES_IN    := APEX_JSON.GET_NUMBER   (P_PATH => 'result.expires_in');
+        L_TOKEN                 := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.access_token');
+        L_RESPONSE_MESSAGE      := APEX_JSON.GET_VARCHAR2 (P_PATH => 'status');
+        L_RESPONSE_CODE         := APEX_JSON.GET_VARCHAR2 (P_PATH => 'statusCode');
+        L_RESPONSE_TIMESTAMP    := APEX_JSON.GET_VARCHAR2 (P_PATH => 'result.timestamp');
+        L_EXPIRED_IN            := APEX_JSON.GET_NUMBER   (P_PATH => 'result.expires_in');
 
-        L_LOG.URL           := L_URL || '/service-sso/' || L_PATH;
+        INSERT INTO BJKT_ACCESS_TOKEN (
+            NAME, ACCESS_TOKEN, TIMESTAMP_TOKEN, EXPIRED_IN
+        ) VALUES (
+            L_BANK_JKT, L_TOKEN, L_RESPONSE_TIMESTAMP, L_EXPIRED_IN
+        );
+
+        L_LOG.URL           := L_URL || L_API_GROUP || L_PATH;
         L_LOG.NAME          := L_BANK_JKT;
         L_LOG.RAY_ID        := L_RAY_ID;
         L_LOG.ACCESS_TOKEN  := L_TOKEN;
@@ -223,7 +264,7 @@ as
 
     EXCEPTION
         WHEN OTHERS THEN
-            L_LOG.URL           := L_URL || '/service-sso/' || L_PATH;
+            L_LOG.URL           := L_URL || L_API_GROUP || L_PATH;
             L_LOG.NAME          := L_BANK_JKT;
             L_LOG.RAY_ID        := L_RAY_ID;
             L_LOG.ACCESS_TOKEN  := L_TOKEN;
@@ -327,7 +368,7 @@ as
 
         L_RESULT_CLOB :=
             APEX_WEB_SERVICE.MAKE_REST_REQUEST (
-                P_URL           => L_URL || '/service-sso/' || L_ENDPOINT_URL,
+                P_URL           => L_URL || L_API_GROUP || L_ENDPOINT_URL,
                 P_HTTP_METHOD   => 'GET',
                 P_WALLET_PATH   => L_WALLET_PATH,
                 P_WALLET_PWD    => L_WALLET_PASSWORD
