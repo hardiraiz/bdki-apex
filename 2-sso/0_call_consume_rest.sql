@@ -1,3 +1,4 @@
+-- call generate token
 DECLARE
     L_TIMESTAMP VARCHAR2 (200);
     L_SIGNATURE VARCHAR2 (1000);
@@ -17,3 +18,19 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('RAY ID: '     || L_RAY_ID);
     DBMS_OUTPUT.PUT_LINE('TOKEN: '      || L_TOKEN);
 END;
+/
+
+-- call get master data division
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_DIVISIONS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/

@@ -1,4 +1,4 @@
-DROP JAVA SOURCE DEV."BDKISignSHA512HMAC";
+DROP JAVA SOURCE DEV."BJKTSignSHA512HMAC";
 
 SET DEFINE OFF;
 
@@ -19,7 +19,7 @@ as import java.nio.charset.StandardCharsets;
                 hexEncode = hash256(v_request_body);
             }
             else {
-                hexEncode = v_request_body;
+                hexEncode = "";
             }
             String stringToSign = v_http_method + ":" + v_url_x + ":" + v_token + ":" + hexEncode + ":" + v_timestamp;
             return Base64.getEncoder().encodeToString(calculateHMACSHA512(stringToSign, v_client_secret));

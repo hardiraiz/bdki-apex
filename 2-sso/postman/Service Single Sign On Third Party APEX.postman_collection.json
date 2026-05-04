@@ -1,0 +1,1368 @@
+{
+	"info": {
+		"_postman_id": "03a3a0f0-0528-47ac-b7ee-55f6639768e2",
+		"name": "Service Single Sign On Third Party APEX",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30216945"
+	},
+	"item": [
+		{
+			"name": "Acces Token",
+			"item": [
+				{
+					"name": "Get Acces Token Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Save signature token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    console.log(jsonData)",
+									"    pm.environment.set(\"ACCESS_TOKEN\", jsonData.result.access_token); // Store in environment variable",
+									"    // pm.globals.set(\"SIGNATURE_TOKEN\", jsonData.result);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Define the character set for alphanumeric characters",
+									"const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+									"const charactersLength = characters.length;",
+									"",
+									"// Initialize an empty string to hold the random string",
+									"let randomString = '';",
+									"",
+									"// Loop 16 times to generate a 16-character string",
+									"for (let i = 0; i < 16; i++) {",
+									"    // Generate a random index to pick a character from the character set",
+									"    const randomIndex = Math.floor(Math.random() * charactersLength);",
+									"    // Append the selected character to the randomString",
+									"    randomString += characters.charAt(randomIndex);",
+									"}",
+									"",
+									"// Store the generated random string in a Postman environment variable named 'randomString'",
+									"pm.environment.set(\"RAY-ID\", randomString);",
+									"",
+									"// Optional: Log the generated random string to the console for verification",
+									"console.log(\"Generated Random String:\", randomString);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channelId\":\"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/get-token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"get-token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Missing Header",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_TOKEN}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"channelId\":\"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/get-token",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"get-token"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 25 Feb 2025 10:31:32 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "181"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"missing or invalid mandatory field|timeStamp:|channelId:|signature:\",\n        \"timestamp\": \"2025-02-25T17:31:32.946862+07:00\"\n    }\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"channelId\":\"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/get-token",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"get-token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 25 Feb 2025 10:31:50 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "283"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": {\n        \"timestamp\": \"2025-02-25T17:31:51Z\",\n        \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDA0ODEzMTEsImlhdCI6MTc0MDQ3OTUxMSwidXNlcl9pZCI6Ik1BU1RFUi1QT1JUQUwtU1NPIn0.GNquYc-NamngqtONw6rs1KVTGB9vtNpCH-gssJTz5VE\",\n        \"expires_in\": 1800\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Get Data",
+			"item": [
+				{
+					"name": "Get All Master Divisi",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-divisi",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-divisi"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/getlistalldivisi",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"getlistalldivisi"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Thu, 18 Apr 2024 04:01:45 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "44843"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 13901,\n            \"id_divisi\": 734,\n            \"nama_divisi\": \"Divisi Rekrutmen dan Pengembangan SDM\"\n        },\n        {\n            \"id\": 13902,\n            \"id_divisi\": 766,\n            \"nama_divisi\": \"Divisi Operasional\"\n        },\n        {\n            \"id\": 13906,\n            \"id_divisi\": 572,\n            \"nama_divisi\": \"Divisi Service dan Quality Development\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-divisi",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-divisi"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:49:24 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T12:49:24.880241144+07:00\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Master Departemen",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-departemen",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-departemen"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-departemen",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-departemen"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:50:02 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T12:50:03.350208555+07:00\"\n    }\n}"
+						},
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									},
+									{
+										"key": "X-RAY-ID",
+										"value": "{{RAY-ID}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-departemen",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-departemen"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:57:34 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "188580"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 53524,\n            \"id_departemen\": 10,\n            \"nama_departemen\": \"Resiko Non Kredit\"\n        },\n        {\n            \"id\": 53525,\n            \"id_departemen\": 11,\n            \"nama_departemen\": \"Risiko Operasional\"\n        },\n        {\n            \"id\": 53538,\n            \"id_departemen\": 24,\n            \"nama_departemen\": \"Pasar Uang, Modal Dan Forex\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Master Jabatan",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-jabatan",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-jabatan"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-jabatan",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-jabatan"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:58:23 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "44302"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 1,\n            \"id_jabatan\": 1,\n            \"nama_jabatan\": \"Komisaris Utama\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 2,\n            \"id_jabatan\": 2,\n            \"nama_jabatan\": \"Anggota Komisaris\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 3,\n            \"id_jabatan\": 9,\n            \"nama_jabatan\": \"Pemimpin Cabang Utama\"\n        },\n        {\n            \"id\": 4,\n            \"id_jabatan\": 10,\n            \"nama_jabatan\": \"Pemimpin Group Atas\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-jabatan",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-jabatan"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:59:02 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T12:59:03.362237783+07:00\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Master Tingkatan",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-tingkatan",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-tingkatan"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-tingkatan",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-tingkatan"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:59:25 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T12:59:26.619861774+07:00\"\n    }\n}"
+						},
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-tingkatan",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-tingkatan"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 05:59:54 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2521"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 2,\n            \"id_tingkatan\": 2,\n            \"nama_tingkatan\": \"Vice President\"\n        },\n        {\n            \"id\": 3,\n            \"id_tingkatan\": 3,\n            \"nama_tingkatan\": \"Assistant Vice President\"\n        },\n        {\n            \"id\": 4,\n            \"id_tingkatan\": 4,\n            \"nama_tingkatan\": \"Senior Manager\"\n        },\n        {\n            \"id\": 5,\n            \"id_tingkatan\": 5,\n            \"nama_tingkatan\": \"Manager\"\n        },\n        {\n            \"id\": 6,\n            \"id_tingkatan\": 6,\n            \"nama_tingkatan\": \"Assistant Manager\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Master Unit Kerja",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-unit-kerja",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-unit-kerja"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-unit-kerja",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-unit-kerja"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 06:00:15 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T13:00:16.214248988+07:00\"\n    }\n}"
+						},
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-unit-kerja",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-unit-kerja"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 06:01:32 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "107541"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 2,\n            \"id_unit_kerja\": 21,\n            \"nama_unit_kerja\": \"Dana Pensiun Bank DKI\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"904\",\n            \"kategori_unit_kerja\": \"1\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 3,\n            \"id_unit_kerja\": 22,\n            \"nama_unit_kerja\": \"Komisaris\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"904\",\n            \"kategori_unit_kerja\": \"4\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 4,\n            \"id_unit_kerja\": 23,\n            \"nama_unit_kerja\": \"Y.K.K. PT. BANK DKI\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"0\"\n        },\n        {\n            \"id\": 5,\n            \"id_unit_kerja\": 56,\n            \"nama_unit_kerja\": \"Kantor Pusat\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"2\"\n        },\n        {\n            \"id\": 6,\n            \"id_unit_kerja\": 57,\n            \"nama_unit_kerja\": \"Biro Kredit\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"0\"\n        },\n        {\n            \"id\": 7,\n            \"id_unit_kerja\": 60,\n            \"nama_unit_kerja\": \"Grup Audit Intern\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"903\",\n            \"kategori_unit_kerja\": \"1\",\n            \"status_data\": 2\n        },\n        {\n            \"id\": 8,\n            \"id_unit_kerja\": 61,\n            \"nama_unit_kerja\": \"Grup Manajemen Risiko dan Kepatuhan\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"1\"\n        },\n        {\n            \"id\": 9,\n            \"id_unit_kerja\": 62,\n            \"nama_unit_kerja\": \"Grup Perencanaan Strategis\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"1\"\n        },\n        {\n            \"id\": 10,\n            \"id_unit_kerja\": 63,\n            \"nama_unit_kerja\": \"Grup Komersial\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"1\"\n        },\n        {\n            \"id\": 11,\n            \"id_unit_kerja\": 64,\n            \"nama_unit_kerja\": \"Grup Konsumer\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"902\",\n            \"kategori_unit_kerja\": \"1\"\n        },\n        {\n            \"id\": 12,\n            \"id_unit_kerja\": 65,\n            \"nama_unit_kerja\": \"Grup Supervisi Kredit\",\n            \"kode_branch_induk\": \"0\",\n            \"kode_branch\": \"0\",\n            \"kategori_unit_kerja\": \"1\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Master Model Unit Kerja",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TIMESTAMP",
+								"value": "{{TIMESTAMP}}",
+								"type": "text"
+							},
+							{
+								"key": "X-CHANNEL-KEY",
+								"value": "{{CHANNEL_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SIGNATURE",
+								"value": "{{SIGNATURE_HEADER}}",
+								"type": "text"
+							},
+							{
+								"key": "X-RAY-ID",
+								"value": "{{RAY-ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-model-unit-kerja",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"{{API_GROUP}}",
+								"api",
+								"v3",
+								"get-list-all-model-unit-kerja"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Signature Not Match",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-model-unit-kerja",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-model-unit-kerja"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 06:02:09 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": false,\n    \"statusCode\": \"Bad Request\",\n    \"result\": {\n        \"message\": \"Signature Not Match\",\n        \"timestamp\": \"2025-03-07T13:02:10.508862716+07:00\"\n    }\n}"
+						},
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TIMESTAMP",
+										"value": "{{TIMESTAMP}}",
+										"type": "text"
+									},
+									{
+										"key": "X-CHANNEL-KEY",
+										"value": "{{CHANNEL_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "X-SIGNATURE",
+										"value": "{{SIGNATURE_HEADER}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/{{API_GROUP}}/api/v3/get-list-all-model-unit-kerja",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"{{API_GROUP}}",
+										"api",
+										"v3",
+										"get-list-all-model-unit-kerja"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Fri, 07 Mar 2025 06:02:45 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1015"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": true,\n    \"statusCode\": \"OK\",\n    \"result\": [\n        {\n            \"id\": 1,\n            \"id_model\": 1,\n            \"nama_model_unit_kerja\": \"Model 1\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 2,\n            \"id_model\": 2,\n            \"nama_model_unit_kerja\": \"Model 2\",\n            \"status_data\": 1\n        },\n        {\n            \"id\": 3,\n            \"id_model\": 3,\n            \"nama_model_unit_kerja\": \"Model 3\",\n            \"status_data\": 1\n        }\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "Master data service"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://10.114.40.11",
+			"type": "string"
+		},
+		{
+			"key": "API_GROUP",
+			"value": "service-sso",
+			"type": "string"
+		},
+		{
+			"key": "CHANNEL_KEY",
+			"value": "APEX",
+			"type": "string"
+		},
+		{
+			"key": "SIGNATURE_TOKEN",
+			"value": "8fdcd090e9dcff08905026b97ad1bc4cfc8b155e06dad4b76c2a33b6c1f507f8",
+			"type": "string"
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDEzMzU1MTEsImlhdCI6MTc0MTMzMzcxMSwidXNlcl9pZCI6Ik1BU1RFUi1QT1JUQUwtU1NPIn0.GIbaBZV8aTKuiYGprXpHzAtNg5ISkCiBYYiAQ7mJTBk",
+			"type": "string"
+		},
+		{
+			"key": "TIMESTAMP",
+			"value": "2025-01-20T10:42:42+07:00",
+			"type": "string"
+		},
+		{
+			"key": "SIGNATURE_HEADER",
+			"value": "St7B/bE4cHwusGjguZqKT6tziWWr4HOoG2eRFwSpR3CF6C9JEXB8lVhaV0/PFMECO9H25copUp4AKETevIHwTw==",
+			"type": "string"
+		},
+		{
+			"key": "RAY-ID",
+			"value": "oiG5UHYS279i8rwT",
+			"type": "string"
+		}
+	]
+}
