@@ -2,6 +2,8 @@ insert into BJKT_FND_CREDENTIAL
     ( name, description, url, version, client_id, client_key )
 values
     ('BJKT', 'Bank Jakarta Credential', 'http://10.114.40.11:38001', '1.0', 'APEX', 'dAb2VerDdx3Q7U6TEqu8oKE0bMhXeuft');
+
+COMMIT;
 /
 
 
@@ -220,6 +222,8 @@ SELECT * FROM V$VERSION;
 
 DELETE FROM BJKT_ACCESS_TOKEN;
 /
+DELETE FROM BJKT_API_LOG;
+/
 COMMIT;
 /
 
@@ -238,5 +242,23 @@ FROM BJKT_FND_CREDENTIAL
 FETCH FIRST 1 ROW ONLY;
 /
 
+SELECT * FROM BJKT_FND_CREDENTIAL;
+/
+
 select COUNT(*) from BJKT_DIVISIONS;
+/
+
+select COUNT(*) from BJKT_WORK_UNITS;
+/
+
+select COUNT(*) from BJKT_DEPARTMENTS;
+/
+
+select COUNT(*) from BJKT_POSITIONS;
+/
+
+select COUNT(*) from BJKT_LEVELS;
+/
+
+select COUNT(*) from BJKT_MODEL_WORK_UNITS;
 /

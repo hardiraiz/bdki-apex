@@ -20,12 +20,87 @@ BEGIN
 END;
 /
 
--- call get master data division
+-- call get master data divisions
 DECLARE
     L_STATUS    VARCHAR2(100);
     L_MESSAGE   VARCHAR2(1000);
 BEGIN
     BJKT_SSO_INTEGRATIONS_PKG.GET_DIVISIONS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/
+
+-- call get master data departments
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_DEPARTMENTS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/
+
+-- call get master data levels
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_LEVELS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/
+
+-- call get master data departments
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_POSITIONS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/
+
+-- call get master data work units
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_WORK_UNITS (
+        R_STATUS    => L_STATUS,
+        R_MESSAGE   => L_MESSAGE
+    );
+
+    DBMS_OUTPUT.PUT_LINE('STATUS: ' || L_STATUS);
+    DBMS_OUTPUT.PUT_LINE('MESSAGE: ' || L_MESSAGE);
+END;
+/
+
+-- call get master data work units
+DECLARE
+    L_STATUS    VARCHAR2(100);
+    L_MESSAGE   VARCHAR2(1000);
+BEGIN
+    BJKT_SSO_INTEGRATIONS_PKG.GET_MODEL_WORK_UNITS (
         R_STATUS    => L_STATUS,
         R_MESSAGE   => L_MESSAGE
     );
