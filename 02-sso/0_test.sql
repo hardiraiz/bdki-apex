@@ -248,9 +248,6 @@ SELECT * FROM BJKT_FND_CREDENTIAL;
 select COUNT(*) from BJKT_DIVISIONS;
 /
 
-select COUNT(*) from BJKT_WORK_UNITS;
-/
-
 select COUNT(*) from BJKT_DEPARTMENTS;
 /
 
@@ -258,6 +255,9 @@ select COUNT(*) from BJKT_POSITIONS;
 /
 
 select COUNT(*) from BJKT_LEVELS;
+/
+
+select COUNT(*) from BJKT_WORK_UNITS;
 /
 
 select COUNT(*) from BJKT_MODEL_WORK_UNITS;
