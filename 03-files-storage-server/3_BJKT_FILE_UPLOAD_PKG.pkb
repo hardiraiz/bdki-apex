@@ -71,12 +71,13 @@ create or replace package body "BJKT_FILE_UPLOAD_PKG" as
     END save_file_to_server;
 
     PROCEDURE get_file_from_server(
-        p_file_id       IN  NUMBER,
-        r_file_blob     OUT BLOB,
-        r_mime_type     OUT VARCHAR2,
-        r_file_size     OUT NUMBER,
-        r_status        OUT VARCHAR2,
-        r_message       OUT VARCHAR2
+        p_file_id           IN  NUMBER,
+        r_file_name_server  OUT VARCHAR2,
+        r_file_blob         OUT BLOB,
+        r_mime_type         OUT VARCHAR2,
+        r_file_size         OUT NUMBER,
+        r_status            OUT VARCHAR2,
+        r_message           OUT VARCHAR2
     )
     AS
         v_file_name     VARCHAR2(4000);
@@ -93,7 +94,8 @@ create or replace package body "BJKT_FILE_UPLOAD_PKG" as
         WHERE  id = p_file_id;
 
         -- Buka file dari directory Oracle
-        v_file := UTL_FILE.FOPEN(l_dir_name, v_file_name, 'rb', 32767);
+        r_file_name_server  := v_file_name;
+        v_file              := UTL_FILE.FOPEN(l_dir_name, v_file_name, 'rb', 32767);
 
         DBMS_LOB.CREATETEMPORARY(v_temp_blob, TRUE);
         DBMS_LOB.OPEN(v_temp_blob, DBMS_LOB.LOB_READWRITE);
