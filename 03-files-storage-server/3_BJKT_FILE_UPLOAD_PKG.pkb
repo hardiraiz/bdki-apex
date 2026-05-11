@@ -4,11 +4,15 @@ create or replace package body "BJKT_FILE_UPLOAD_PKG" as
     l_dir_name          VARCHAR2(100) := 'BJKT_FILES_DIR';
 
     PROCEDURE save_file_to_server (
-        p_file_name   IN VARCHAR2,
-        p_mime_type   IN VARCHAR2,
-        p_file_blob   IN BLOB,
-        r_status      OUT VARCHAR2,
-        r_message     OUT VARCHAR2
+        p_file_id       IN  NUMBER,
+        p_feature_name  IN  VARCHAR2,
+        p_source_id     IN  NUMBER,
+        p_file_name     IN  VARCHAR2,
+        p_mime_type     IN  VARCHAR2,
+        p_file_blob     IN  BLOB,
+        r_file_id       OUT NUMBER,
+        r_status        OUT VARCHAR2,
+        r_message       OUT VARCHAR2
     ) AS
         v_file        UTL_FILE.FILE_TYPE;
         v_buffer      RAW(32767);
@@ -43,15 +47,27 @@ create or replace package body "BJKT_FILE_UPLOAD_PKG" as
         UTL_FILE.FCLOSE(v_file);
 
         -- Simpan metadata ke log table
-        INSERT INTO BJKT_FILE_UPLOAD_LOG (file_name, file_name_server, file_path, file_size, mime_type, uploaded_by)
-        VALUES (
+        INSERT INTO BJKT_FILE_UPLOAD_LOG (
+            id,
+            feature_name,
+            source_id,
+            file_name, 
+            file_name_server, 
+            file_path, 
+            file_size, 
+            mime_type, 
+            uploaded_by
+        ) VALUES (
+            p_file_id,
+            p_feature_name,
+            p_source_id,
             p_file_name,
             v_safe_name,
             l_path_file_storage || v_safe_name,
             v_blob_len,
             p_mime_type,
             NVL(V('APP_USER'), USER)
-        );
+        ) RETURNING id INTO r_file_id;
 
         COMMIT;
 
@@ -145,8 +161,12 @@ create or replace package body "BJKT_FILE_UPLOAD_PKG" as
         -- Hapus file fisik dari directory Oracle
         UTL_FILE.FREMOVE(l_dir_name, v_file_name_server);
 
-        -- Hapus record dari log
-        DELETE FROM bjkt_file_upload_log
+        -- update row menjadi deleted
+        UPDATE bjkt_file_upload_log
+        SET
+            is_deleted  = 1,
+            deleted_at  = SYSTIMESTAMP,
+            deleted_by  = v('APP_USER')
         WHERE id = p_file_id;
 
         COMMIT;

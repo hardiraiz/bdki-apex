@@ -1,0 +1,29 @@
+### [Bansos] Upload data dan flagging update - Development
+
+# Input field form unggah
+- Memilih program bansos (LOV) sumber data dari data master program
+- Memilih file excel penerima bansos berdasarkan template
+
+# Menekan button unggah
+- File upload akan tersimpan tersimpan ke file storage server
+- Sistem akan melakukan validasi per baris berdasarkan master data
+- Update ke history file unggah data bansos berapa data yang valid, invalid kemudian total data upload (Valid dan Invalid), berapa data penerima yang perlu dibukakan rekening, dari file yang telah di upload
+
+# Menekan button batal
+- Clear field file upload
+
+# Menekan button contoh dokumen
+- akan download template upload data statis
+
+# Menekan button referensi data
+- akan download master data secara dinamis yang ada di server, masing-masing master data dimasukkan ke sheet yang terpisah
+
+## List fitur Upload data dan flagging update
+# Phase 1 (5 point / 5 hari)
+- Object table dan package untuk menyimpan Upload Penerima Bansos beserta total data upload, data valid, data invalid, data penerima baru, dan penerima lanjutan
+- Object table dan package untuk menyimpan log file upload yang sekaligus menyimpan data kedalam internal file storage
+- Fitur validasi ke master data beserta format masing-masing kolom jika ada untuk validasi data valid dan invalid
+- Menampilkan total data upload, data valid, data invalid, penerima baru, penerima lanjutan di dashboard berdasarkan program yang aktif paling akhir
+
+# Phase 2 (1 point / 1 hari) 
+- Fitur validasi ke Data Ware House (DWH) melalui db link untuk melakukan validasi nik sesuai dengan no rekening untuk melakukan validasi ke absahan data dan juga flag penerima baru atau lanjutan

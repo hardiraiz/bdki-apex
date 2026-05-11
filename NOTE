@@ -1,0 +1,18 @@
+[PERTANYAAN TEKNIS]
+Kode lain dari kolom table history penerima bansos
+- kode_master_status_proses default '0'
+- kode_master_status_distribusi default '00'
+- kode_master_status_dana default '3'
+- kode_master_status_rekening default '3'
+- kode_master_status_penerima default '00'
+
+contoh data json dari kolom table history penerima bansos
+- keterangan_validasi
+- tanggal_proses
+
+[PERTANYAAN ALUR BISNIS]
+proses unggah data penerima bansos:
+1. Jika data penerima sudah valid untuk program 2026-1 dan kemudian mengikuti program 2026-2 apakah data di update atau di insert baru (kemungkinan insert baru)
+2. Jika data penerima sudah valid untuk program 2026-1 dan ingin melakukan pembaruan data lagi apakah bisa? jika bisa mekanisme seperti apa?
+3. Jika data penerima tidak valid untuk program 2026-1 dan melakukan pembaruan data apakah data di update atau insert baru (Kemungkinan diperbarui)
+4. Master data program apakah ada validasi seperti yang aktif hanya bisa 1 program karena yang tampil di dashboard adalah program aktif yang terakhir

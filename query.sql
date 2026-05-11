@@ -1,0 +1,2 @@
+select * from BJKT_BANSOS_RECIPIENTS_STG;
+/

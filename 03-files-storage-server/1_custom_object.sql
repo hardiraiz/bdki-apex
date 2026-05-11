@@ -1,0 +1,70 @@
+/*
+   START
+   CREATE TABLE TO STORE FILE UPLOAD LOG
+*/
+
+DROP TABLE BJKT_FILE_UPLOAD_LOG;
+/
+
+CREATE TABLE BJKT_FILE_UPLOAD_LOG (
+    id                  NUMBER NOT NULL,
+    feature_name        VARCHAR2(200) NOT NULL,
+    source_id           NUMBER,
+    file_name           VARCHAR2(1000) NOT NULL,
+    file_name_server    VARCHAR2(1000) NOT NULL,
+    file_path           VARCHAR2(1000) NOT NULL,
+    file_size           NUMBER NOT NULL,
+    mime_type           VARCHAR2(200) NOT NULL,
+
+    upload_status       VARCHAR2(50) DEFAULT 'SUCCESS' NOT NULL,
+    is_deleted          NUMBER(1) DEFAULT 0 NOT NULL,
+    deleted_at          TIMESTAMP,
+    deleted_by          VARCHAR2(200),
+
+    uploaded_by         VARCHAR2(200) NOT NULL,
+    uploaded_at         TIMESTAMP NOT NULL,
+
+    CONSTRAINT BJKT_FILE_UPLOAD_LOG_PK PRIMARY KEY (ID)
+);
+/
+
+CREATE INDEX BJKT_FILE_UPLOAD_LOG_I1 ON BJKT_FILE_UPLOAD_LOG (feature_name, source_id);
+/
+
+CREATE INDEX BJKT_FILE_UPLOAD_LOG_I2 ON BJKT_FILE_UPLOAD_LOG (uploaded_by, uploaded_at);
+/
+
+CREATE INDEX BJKT_FILE_UPLOAD_LOG_I3 ON BJKT_FILE_UPLOAD_LOG (feature_name, source_id, is_deleted);
+/
+
+DROP SEQUENCE BJKT_FILE_UPLOAD_LOG_S;
+/
+
+CREATE SEQUENCE BJKT_FILE_UPLOAD_LOG_S
+START WITH 1
+INCREMENT BY 1;
+/
+
+DROP TRIGGER BJKT_FILE_UPLOAD_LOG_TRG;
+/
+
+CREATE OR REPLACE TRIGGER BJKT_FILE_UPLOAD_LOG_TRG
+BEFORE INSERT
+ON BJKT_FILE_UPLOAD_LOG
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+        :NEW.id := NVL(:NEW.ID, DEV.BJKT_FILE_UPLOAD_LOG_S.NEXTVAL);
+        :NEW.uploaded_by := NVL(V('APP_USER'), USER);
+        :NEW.uploaded_at := SYSTIMESTAMP;
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL;
+END;
+/
+/*
+   END
+   CREATE TABLE TO STORE FILE UPLOAD LOG
+*/
