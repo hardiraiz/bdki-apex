@@ -1,12 +1,5 @@
 CREATE OR REPLACE PACKAGE BJKT_UPLOAD_BANSOS_PKG AS
 
-    FUNCTION UPDATE_STATUS_UPLOAD (
-        p_id        NUMBER,
-        p_status    VARCHAR2,
-        p_message   VARCHAR2
-    ) RETURN VARCHAR2;
-    
-
     PROCEDURE CREATE_PROGRAM (
         p_program_id    IN  NUMBER,
         p_upload_name   IN  VARCHAR2,
@@ -19,6 +12,7 @@ CREATE OR REPLACE PACKAGE BJKT_UPLOAD_BANSOS_PKG AS
         p_upload_name       IN  VARCHAR2,
         p_batch_id          IN  NUMBER,
         p_upload_bansos_id  IN  NUMBER,
+        p_program_id        IN  NUMBER,
         r_total_rows        OUT NUMBER,
         r_status            OUT VARCHAR2,
         r_message           OUT VARCHAR2
