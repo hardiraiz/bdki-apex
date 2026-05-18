@@ -1,0 +1,20 @@
+th#col-no, td[headers="col-no"] {
+    width: 32px;
+    position: sticky;
+    left: 0;
+    z-index: 100;
+    background: white;
+}
+th#col-name, td[headers="col-name"] {
+    position: sticky;
+    left: 32.2px;
+    z-index: 100;
+    background: white;
+}
+th#col-validation, td[headers="col-validation"] {
+    width: 100px;
+    position: sticky;
+    right: 0;
+    z-index: 100;
+    background: white;
+}
