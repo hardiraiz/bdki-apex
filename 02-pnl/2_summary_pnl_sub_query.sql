@@ -1,27 +1,45 @@
--- list kategori_segment
-select distinct "kategori_segment"
-from PNL_LOAN_AVG_SY
-where "padanan" = 'Konven';
-/
-
--- list cabang dan cabang konsol
-select
-    "kode_cabang_awal"      "kode_cabang",
-    "nama_kantor_akhir"     "kode_awal",
-    "kode_konsol",
-    "nama_konsol",
-    "kode_cabang_dblm_v2"   "kode_cabang_dblm",
-    "nama_cabang_dblm_v2"   "nama_cabang_dblm",
-    "status_branch",
-    "segmen_branch",
-    "keterangan"
-from DIM_BRANCH_V2_SY
-/
-
 /*
     START
     AVG Balance Kredit
 */
+--
+-- kredit avg. total
+--
+select 
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_LOAN_AVG_SY 
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and (
+            "kategori_segment" IN ('KMG', 'KPR') or 
+            "tipe_segment" IN ('Mikro', 'UKM')
+        )
+group by "periode", "nama_kantor_akhir", "cabang";
+/
+--
+-- kredit konven total
+--
+select 
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    "padanan",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_LOAN_AVG_SY 
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and (
+            "kategori_segment" IN ('KMG', 'KPR') or 
+            "tipe_segment" IN ('Mikro', 'UKM')
+        )
+    and "padanan" = 'Konven'
+group by "periode", "nama_kantor_akhir", "cabang", "padanan";
+/
 -- kredit konven KMG
 select 
     "periode",
@@ -31,9 +49,10 @@ select
     "kategori_segment",
     "padanan",
     ROUND("avg" / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori_segment" = 'KMG'
     and "padanan" = 'Konven';
 /
@@ -46,9 +65,10 @@ select
     "kategori_segment",
     "padanan",
     ROUND("avg" / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori_segment" = 'KPR'
     and "padanan" = 'Konven';
 /
@@ -60,9 +80,10 @@ select
     "tipe_segment",
     "padanan",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "tipe_segment" = 'Mikro'
     and "padanan" = 'Konven'
 group by 
@@ -80,9 +101,10 @@ select
     "tipe_segment",
     "padanan",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "tipe_segment" = 'UKM'
     and "padanan" = 'Konven'
 group by 
@@ -92,7 +114,26 @@ group by
     "tipe_segment",
     "padanan";
 /
-
+--
+-- kredit syariah total
+--
+select 
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    "padanan",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_LOAN_AVG_SY 
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and (
+            "kategori_segment" IN ('KMG', 'KPR') or 
+            "tipe_segment" IN ('Mikro', 'UKM')
+        )
+    and "padanan" = 'Syariah'
+group by "periode", "nama_kantor_akhir", "cabang", "padanan";
+/
 -- pembiayaan syariah KMG
 select 
     "periode",
@@ -102,11 +143,13 @@ select
     "kategori_segment",
     "padanan",
     ROUND("avg" / POWER(10,6)) total
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori_segment" = 'KMG'
-    and "padanan" = 'DBLM';
+    and "padanan" = 'Syariah';
+/
 -- pembiayaan syariah KPR
 select 
     "periode",
@@ -116,11 +159,12 @@ select
     "kategori_segment",
     "padanan",
     ROUND("avg" / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori_segment" = 'KPR'
-    and "padanan" = 'DBLM';
+    and "padanan" = 'Syariah';
 /
 -- pembiayaan syariah Mikro
 select
@@ -130,11 +174,12 @@ select
     "tipe_segment",
     "padanan",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "tipe_segment" = 'Mikro'
-    and "padanan" = 'DBLM'
+    and "padanan" = 'Syariah'
 group by 
     "periode",
     "cabang",
@@ -150,11 +195,12 @@ select
     "tipe_segment",
     "padanan",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "tipe_segment" = 'UKM'
-    and "padanan" = 'DBLM'
+    and "padanan" = 'Syariah'
 group by 
     "periode",
     "cabang",
@@ -170,6 +216,42 @@ group by
     START
     Average Balance DPK
 */
+-- 
+-- DPK Total
+-- 
+select
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_DPK_AVG_SY
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and "kategori" IN ('Giro', 'Tabungan', 'Deposito')
+group by
+    "periode",
+    "cabang",
+    "nama_kantor_akhir";
+/
+-- 
+-- DPK Konven Total
+select
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_DPK_AVG_SY
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and "kategori" IN ('Giro', 'Tabungan', 'Deposito')
+    and "produk" = 'Konven'
+group by
+    "periode",
+    "cabang",
+    "nama_kantor_akhir";
+/
 -- DPK Konven Giro
 select
     "periode",
@@ -177,9 +259,10 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Giro'
     and "produk" = 'Konven'
 group by
@@ -195,9 +278,10 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Tabungan'
     and "produk" = 'Konven'
 group by
@@ -213,9 +297,10 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Deposito'
     and "produk" = 'Konven'
 group by
@@ -224,7 +309,24 @@ group by
     "nama_kantor_akhir",
     "kategori";
 /
-
+-- 
+-- DPK Konven Total
+select
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+    ROUND(SUM("avg") / POWER(10,6)) "total"
+from BJKT_PNL_DPK_AVG_SY
+where 
+        "cabang" = 101
+    and "periode" = '2026-03-31'
+    and "kategori" IN ('Giro', 'Tabungan', 'Deposito')
+    and "produk" = 'Syariah'
+group by
+    "periode",
+    "cabang",
+    "nama_kantor_akhir";
+/
 -- DPK Syariah Giro
 select
     "periode",
@@ -232,11 +334,12 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Giro'
-    and "produk" = 'DBLM'
+    and "produk" = 'Syariah'
 group by
     "periode",
     "cabang",
@@ -250,11 +353,12 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Tabungan'
-    and "produk" = 'DBLM'
+    and "produk" = 'Syariah'
 group by
     "periode",
     "cabang",
@@ -268,11 +372,12 @@ select
     "nama_kantor_akhir",
     "kategori",
     ROUND(SUM("avg") / POWER(10,6)) "total"
-from PNL_DPK_AVG_SY
+from BJKT_PNL_DPK_AVG_SY
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori" = 'Deposito'
-    and "produk" = 'DBLM'
+    and "produk" = 'Syariah'
 group by
     "periode",
     "cabang",
@@ -295,9 +400,10 @@ select
     "kategori_segment",
     "padanan",
     (("avg" * 0.92/100)/POWER(10,6)) total
-from PNL_LOAN_AVG_SY 
+from BJKT_PNL_LOAN_AVG_SY 
 where 
         "cabang" = 101
+    and "periode" = '2026-03-31'
     and "kategori_segment" = 'KMG'
     and "padanan" = 'Konven';
 /

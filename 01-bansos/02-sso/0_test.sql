@@ -2,8 +2,12 @@ insert into BJKT_FND_CREDENTIAL
     ( name, description, url, version, client_id, client_key )
 values
     ('BJKT', 'Bank Jakarta Credential', 'http://10.114.40.11:38001', '1.0', 'APEX', 'dAb2VerDdx3Q7U6TEqu8oKE0bMhXeuft');
+/
 
 COMMIT;
+/
+
+select * from BJKT_FND_CREDENTIAL;
 /
 
 
