@@ -1,9 +1,10 @@
 insert into BJKT_FND_CREDENTIAL
     ( name, description, url, version, client_id, client_key )
 values
-    ('BJKT', 'Bank Jakarta Credential', 'http://10.114.40.11:38001', '1.0', 'APEX', 'dAb2VerDdx3Q7U6TEqu8oKE0bMhXeuft');
+    ('BJKT', 'Bank Jakarta Credential', 'http://10.163.50.141:38001', '1.0', 'APEX', 'dAb2VerDdx3Q7U6TEqu8oKE0bMhXeuft');
 /
-
+DELETE FROM BJKT_FND_CREDENTIAL;
+/
 COMMIT;
 /
 
@@ -19,7 +20,7 @@ BEGIN
                         || 'T'
                         || TO_CHAR (SYSTIMESTAMP, 'hh24:mi:ssTZR');
 
-    L_TOKEN := APX_SSO_INTEGRATIONS.GET_ACCESS_TOKEN(L_TIMESTAMP);
+    L_TOKEN := BJKT_SSO_INTEGRATIONS_PKG.GET_ACCESS_TOKEN(L_TIMESTAMP);
 
     DBMS_OUTPUT.PUT_LINE('TOKEN: ' || L_TOKEN);
 END;
@@ -70,8 +71,8 @@ END;
 /
 -- Jalankan sebagai SYSDBA
 SELECT HOST, LOWER_PORT, UPPER_PORT, ACL 
-FROM DBA_NETWORK_ACLS
-WHERE HOST = '10.114.40.11';
+FROM DBA_NETWORK_ACLS;
+-- WHERE HOST = '10.163.50.141';
 /
 
 -- Cek privilege user
@@ -146,11 +147,16 @@ SELECT USER                                         AS DB_USER,
 FROM DUAL;
 /
 
+SELECT username
+FROM all_users
+ORDER BY username;
+/
+
 -- Jalankan sebagai SYSDBA
 -- Tambahkan APEX_PUBLIC_USER
 BEGIN
     DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE (
-        HOST        => '10.114.40.11',
+        HOST        => '10.163.50.141',
         -- LOWER_PORT  => 38001,
         -- UPPER_PORT  => 38001,
         ACE         => XS$ACE_TYPE (
@@ -167,7 +173,7 @@ END;
 -- Hapus menggunakan REMOVE_HOST_ACE
 BEGIN
     DBMS_NETWORK_ACL_ADMIN.REMOVE_HOST_ACE (
-        HOST        => '10.114.40.11',
+        HOST        => '10.163.50.141',
         LOWER_PORT  => NULL,
         UPPER_PORT  => NULL,
         ACE         => XS$ACE_TYPE (
@@ -184,20 +190,20 @@ EXCEPTION
 END;
 /
 
--- Tambahkan APEX_240200 (versi APEX yang digunakan berdasarkan error message)
+-- Tambahkan APEX_260100 (versi APEX yang digunakan berdasarkan error message)
 BEGIN
     DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE (
-        HOST        => '10.114.40.11',
+        HOST        => '10.163.50.141',
         -- LOWER_PORT  => 38001,
         -- UPPER_PORT  => 38001,
         ACE         => XS$ACE_TYPE (
                             PRIVILEGE_LIST => XS$NAME_LIST('connect', 'resolve'),
-                            PRINCIPAL_NAME => 'APEX_240200',
+                            PRINCIPAL_NAME => 'APEX_260100',
                             PRINCIPAL_TYPE => XS_ACL.PTYPE_DB
                        )
     );
     COMMIT;
-    DBMS_OUTPUT.PUT_LINE('ACL APEX_240200 berhasil ditambahkan.');
+    DBMS_OUTPUT.PUT_LINE('ACL APEX_260100 berhasil ditambahkan.');
 END;
 /
 -- Hasil ACL biasanya berformat: sys:xdb:default-19c-ace$
@@ -209,7 +215,44 @@ BEGIN
         UPPER_PORT  => NULL,
         ACE         => XS$ACE_TYPE (
                             PRIVILEGE_LIST => XS$NAME_LIST('connect', 'resolve'),
-                            PRINCIPAL_NAME => 'APEX_240200',
+                            PRINCIPAL_NAME => 'APEX_260100',
+                            PRINCIPAL_TYPE => XS_ACL.PTYPE_DB
+                       )
+    );
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('ACL berhasil dihapus.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+-- Tambahkan DEV (versi APEX yang digunakan berdasarkan error message)
+BEGIN
+    DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE (
+        HOST        => '10.163.50.141',
+        -- LOWER_PORT  => 38001,
+        -- UPPER_PORT  => 38001,
+        ACE         => XS$ACE_TYPE (
+                            PRIVILEGE_LIST => XS$NAME_LIST('connect', 'resolve'),
+                            PRINCIPAL_NAME => 'DEV',
+                            PRINCIPAL_TYPE => XS_ACL.PTYPE_DB
+                       )
+    );
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('ACL DEV berhasil ditambahkan.');
+END;
+/
+-- Hasil ACL biasanya berformat: sys:xdb:default-19c-ace$
+-- Hapus menggunakan REMOVE_HOST_ACE
+BEGIN
+    DBMS_NETWORK_ACL_ADMIN.REMOVE_HOST_ACE (
+        HOST        => '10.114.40.11',
+        LOWER_PORT  => NULL,
+        UPPER_PORT  => NULL,
+        ACE         => XS$ACE_TYPE (
+                            PRIVILEGE_LIST => XS$NAME_LIST('connect', 'resolve'),
+                            PRINCIPAL_NAME => 'DEV',
                             PRINCIPAL_TYPE => XS_ACL.PTYPE_DB
                        )
     );

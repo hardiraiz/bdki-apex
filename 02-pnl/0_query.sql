@@ -6,20 +6,25 @@ where "table_schema" = 'dwh'
 ;
 /
 
--- sample query ke DBLink dengan DWH
+-- query ke DBLink
+SELECT * FROM "dwh"."pnl_pendapatan_bunga"@DWH_DEV;
 SELECT * FROM "dwh"."pnl_beban_bunga"@DWH_DEV;
 SELECT * FROM "dwh"."pnl_income_dpk"@DWH_DEV;
 SELECT * FROM "dwh"."pnl_charge_loan"@DWH_DEV;
+SELECT * FROM "dwh"."pnl_fbi"@DWH_DEV;
+/
+SELECT * FROM BJKT_PNL_LOAN_AVG_SY;
+SELECT * FROM BJKT_PNL_DPK_AVG_SY;
+SELECT * FROM BJKT_PNL_GL_V2_SY;
 /
 
-select * from BJKT_PNL_LOAD_AVG_FIX_SY;
+select distinct "ket_final" from BJKT_PNL_GL_V2_SY where "kode_cabang_akhir" = 108;
+select * from BJKT_PNL_GL_V2_SY where "kode_cabang_akhir" = 108 and "ket_final" = 'Transaksi Non Kredit';
 /
 
 select * from BJKT_BRANCHES_MV;
 /
 
-select * from BJKT_PNL_CKPN_SY;
-/
 
 -- LOV List KC
 select distinct "nama_konsol" d, "kode_konsol" r 
@@ -76,3 +81,27 @@ ORDER BY group_number ASC, is_header DESC
 ;
 /
 
+-- Syariah KMG
+SELECT
+    *
+FROM BJKT_PNL_PENDAPATAN_BUNGA_SY
+WHERE
+        "cabang" = '108'
+    AND "padanan" IN ('DBLM', 'Syariah')
+    AND "kategori_segment" = 'KMG';
+
+SELECT
+    *
+FROM BJKT_PNL_PENDAPATAN_BUNGA_SY
+WHERE
+        "cabang" = '108'
+    AND "padanan" IN ('DBLM', 'Syariah')
+    AND "kategori_segment" = 'KPR';
+
+SELECT
+    *
+FROM BJKT_PNL_PENDAPATAN_BUNGA_SY
+WHERE
+        "cabang" = '108'
+    AND "padanan" IN ('DBLM', 'Syariah')
+    AND "kategori_segment" = 'KPR';

@@ -30,6 +30,18 @@ CREATE OR REPLACE SYNONYM BJKT_PNL_PENDAPATAN_BUNGA_SY
 FOR "dwh"."pnl_pendapatan_bunga"@DWH_DEV
 /
 
+CREATE OR REPLACE SYNONYM BJKT_PNL_INCOME_DPK_SY
+FOR "dwh"."pnl_income_dpk"@DWH_DEV
+/
+
+CREATE OR REPLACE SYNONYM BJKT_PNL_CHARGE_LOAN_SY
+FOR "dwh"."pnl_charge_loan"@DWH_DEV
+/
+
+CREATE OR REPLACE SYNONYM BJKT_PNL_FBI_SY
+FOR "dwh"."pnl_fbi"@DWH_DEV
+/
+
 -- DROP MATERIALIZED VIEW BJKT_BRANCHES_MV;
 -- /
 -- Materialized View list data cabang dan cabang konsolidasi
