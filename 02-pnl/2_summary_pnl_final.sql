@@ -1,7 +1,7 @@
 SET DEFINE OFF;
 
 WITH
--- Credit
+-- Avg. Balance Credit
 cte_kredit AS (
     SELECT
         "periode",

@@ -132,14 +132,16 @@ SET DEFINE OFF;
             AS "dir_opex_prem_as_cr",
         ROUND(SUM(CASE WHEN "ket_final" = 'Transaksi Kredit' THEN "nominal" ELSE NULL END) / POWER(10,6))
             AS "dir_opex_tran_cr",
-        ROUND(SUM(CASE WHEN "ket_final" = 'Transaksi Non Kredit' THEN "nominal" ELSE NULL END) / POWER(10,6))
+        (SUM(CASE WHEN "ket_final" = 'Transaksi Non Kredit' THEN "nominal" ELSE NULL END) / POWER(10,6))
             AS "dir_opex_tran_ncr"
     FROM BJKT_PNL_GL_V2_SY
     WHERE 
             "kode_cabang_akhir" = '108'
-        AND "periode" = '2026-03-31'
+        -- AND "periode" = '2026-03-31'
     GROUP BY "periode", "kode_cabang_akhir"
 ;
+
+select * from BJKT_PNL_GL_V2_SY where "kode_cabang_akhir" = '108' AND "ket_final" = 'Transaksi Non Kredit'
 /
 
 -- Beban CKPN
@@ -225,16 +227,169 @@ SET DEFINE OFF;
 
 -- FTP Charge
 SELECT 
-    -- "periode",
-    -- "cabang",
-    -- "nama_kantor_akhir",
-    -- ABS(ROUND("ftp_charge_loan" / POWER(10, 6))) AS "ftp_charge_loan"
-    *
+    "periode",
+    "kode_cabang_akhir",
+    "nama_kantor_akhir",
+    ABS(ROUND("ftp_charge_loan" / POWER(10, 6))) AS "ftp_charge_loan"
 FROM BJKT_PNL_CHARGE_LOAN_SY
--- WHERE
---         "cabang" = '108'
---     AND "periode" = '2026-03-31'
+WHERE
+        "kode_cabang_akhir" = '108'
+    AND "periode" = '2026-03-31'
+;
+/
+
+-- Beban Bunga
+SELECT
+    "periode",
+    "cabang",
+    "nama_kantor_akhir",
+
+    ROUND(SUM("beban_bunga") / POWER(10,6))                                                           
+        AS "total_beban_bunga",
+
+    -- DPK Konven
+    ROUND(SUM(CASE WHEN "produk" = 'k' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))         
+        AS "beban_bunga_konven",
+    ROUND(SUM(CASE WHEN "produk" = 'k' AND "kategori" = 'Giro' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_konven_giro",
+    ROUND(SUM(CASE WHEN "produk" = 'k' AND "kategori" = 'Tabungan' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_konven_tabungan",
+    ROUND(SUM(CASE WHEN "produk" = 'k' AND "kategori" = 'Deposito' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_konven_deposito",
+
+    -- DPK Syariah
+    ROUND(SUM(CASE WHEN "produk" = 's' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))        
+        AS "beban_bunga_total_syariah",
+    ROUND(SUM(CASE WHEN "produk" = 's' AND "kategori" = 'Giro' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_syariah_giro",
+    ROUND(SUM(CASE WHEN "produk" = 's' AND "kategori" = 'Tabungan' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_syariah_tabungan",
+    ROUND(SUM(CASE WHEN "produk" = 's' AND "kategori" = 'Deposito' THEN "beban_bunga" ELSE NULL END) / POWER(10,6))    
+        AS "beban_bunga_syariah_deposito"
+FROM BJKT_PNL_BEBAN_BUNGA_SY
+WHERE
+        "cabang"  = '108'
+    -- AND "periode" = '2026-03-31'
+    AND "kategori" IN ('Giro', 'Tabungan', 'Deposito')
+GROUP BY
+    "periode",
+    "cabang",
+    "nama_kantor_akhir"
+;
+/
+
+-- NII-Post FTP
+WITH
+pend_bunga AS (
+    SELECT
+        "periode",
+        "cabang",
+        SUM("pendapatan_bunga") / POWER(10,6) AS "total_pen_bunga"
+    FROM BJKT_PNL_PENDAPATAN_BUNGA_SY
+    WHERE "kategori_segment" IN ('KMG', 'KPR') OR "tipe_segment" IN ('Mikro', 'UKM')
+    GROUP BY "periode", "cabang"
+),
+beban_bunga AS (
+    SELECT 
+        "periode",
+        "cabang",
+        SUM("beban_bunga") / POWER(10,6) AS "total_beban_bunga"
+    FROM BJKT_PNL_BEBAN_BUNGA_SY
+    WHERE "kategori" IN ('Giro', 'Tabungan', 'Deposito')
+    GROUP BY "periode", "cabang"
+),
+ftp_charge AS (
+    SELECT 
+        "periode",
+        "kode_cabang_akhir" AS "cabang",
+        ("ftp_charge_loan" / POWER(10, 6)) AS "ftp_charge_loan"
+    FROM BJKT_PNL_CHARGE_LOAN_SY
+),
+ftp_income AS (
+    SELECT
+        "periode",
+        "cabang",
+        "nama_kantor_akhir",
+        ("ftp_income_dpk" / POWER(10, 6)) AS "ftp_income_dpk"
+    FROM BJKT_PNL_INCOME_DPK_SY
+)
+SELECT
+    bb."cabang",
+    ROUND (
+        NVL(bb."total_beban_bunga", 0)
+      + NVL(pb."total_pen_bunga", 0)
+      + NVL(fc."ftp_charge_loan", 0)
+      + NVL(fi."ftp_income_dpk", 0)
+    ) AS "nii_post_ftp"
+FROM 
+    beban_bunga bb
+LEFT JOIN pend_bunga pb
+    ON  bb."cabang" = pb."cabang"
+    AND bb."periode" = pb."periode"
+LEFT JOIN ftp_charge fc
+    ON  bb."cabang"  = fc."cabang"
+    AND bb."periode" = fc."periode"
+LEFT JOIN ftp_income fi
+    ON  bb."cabang"  = fi."cabang"
+    AND bb."periode" = fi."periode"
+WHERE
+    bb."cabang" = '108' and bb."periode" = '2026-03-31'
 ;
 /
 
 -- Fee Based Income
+SET DEFINE OFF;
+/
+SELECT 
+    "kode_cabang_akhir",
+
+    ROUND(SUM("fbi") / POWER(10,6)) 
+        AS "fbi_total",
+    SUM(CASE WHEN "nama" = 'Account Maintenance' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_acc_maint",
+    SUM(CASE WHEN "nama" = 'ATM FBI' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_atm",
+    SUM(CASE WHEN "nama" = 'JakOne Mobile FBI' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_jom",
+    -- add column edc here
+    SUM(CASE WHEN "nama" = 'CMS' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_cms",
+    SUM(CASE WHEN "nomor_rekening" = '432003602100' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_jas_pot",
+    SUM(CASE WHEN "nama" = 'Bisnis Kartu' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_bisnis_kartu",
+    SUM(CASE WHEN "nama" = 'Bisnis SDB' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_bisnis_sdb",
+    SUM(CASE WHEN "nama" = 'Kiriman Uang (RTGS, kliring, dll.)' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_kirim_uang",
+    SUM(CASE WHEN "nama" = 'RESTITUSI BIAYA KANTOR' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_rest_biaya_kantor",
+    SUM(CASE WHEN "nama" = 'Pinalty Nasabah & Penolakan' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_pin_nas_pen",
+    -- add column sindikasi here
+    -- add column trade finance here
+    SUM(CASE WHEN "nama" = 'BANK GARANSI' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_bank_garansi",
+    SUM(CASE WHEN "nama" = 'Admin Kredit' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_admin_kredit",
+    SUM(CASE WHEN "nama" = 'Kerjasama Pihak Lain (komisi agen, asuransi)' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_ker_pihak_lain",
+    -- add column dividen reksa dana here
+    -- add column dividen M2M Forex & SB here
+    SUM(CASE WHEN "nama" = 'Lainnya (komisi notaris, denda tunggakan)' THEN "fbi" ELSE NULL END) / POWER(10,6)
+        AS "fbi_lainnya"
+    -- add column collection recovery income here
+FROM BJKT_PNL_FBI_SY
+WHERE
+        "kode_cabang_akhir" = '108'
+    AND "periode" = '2026-03-31'
+GROUP BY 
+    "kode_cabang_akhir"
+;
+
+SELECT 
+    -- SUM("fbi") total_fbi,
+    *
+FROM BJKT_PNL_FBI_SY 
+WHERE "kode_cabang_akhir" = '108' 
+    AND "nama" = 'ATM FBI';

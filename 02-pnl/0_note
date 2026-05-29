@@ -1,0 +1,131 @@
+*[LIST TABLE DWH]*
+✅: OK 
+⚠️: NEED ACCESS 
+❌: ERROR
+
+- ✅ pnl_echannel
+- ✅ pnl_loan_avg
+- ✅ pnl_dpk_avg
+- ✅ pnl_pendapatan_bunga
+- ✅ pnl_beban_bunga
+- ✅ pnl_income_dpk
+- ✅ pnl_charge_loan
+- ✅ pnl_fbi
+- ✅ dim_branch_v2
+- ✅ pnl_gl_v2
+- ✅ pnl_ckpn
+
+
+*[LIST RUMUS EXCEL]*
+✅: OK
+☑️: Skipped
+❔: TIDAK SESUAI
+❓: BELUM ADA RUMUS
+⚠️: TERKENDALA CEK
+🔘: BELUM DICEK
+
+1.✅ AVG. Balance Kredit
+a.✅ Kredit Konven
+- ✅ KMG
+- ✅ KPR
+- ✅ Mikro
+- ✅ UKM
+b.✅ Kredit Syariah
+- ✅ KMG
+- ✅ KPR
+- ✅ Mikro
+- ✅ UKM
+
+2.✅ AVG. Balance DPK
+a.✅ DPK Konven
+- ✅ Giro
+- ✅ Tabungan
+- ✅ Deposito
+b.✅ DPK Syariah
+- ✅ Giro
+- ✅ Tabungan
+- ✅ Deposito
+
+3.✅ Pend. Bunga Total
+a.✅ Pend. Bunga Konven
+- ✅ KMG
+- ✅ KPR
+- ✅ Mikro
+- ✅ UKM
+b.✅ Pend. Bunga Syariah
+- ✅ KMG
+- ✅ KPR
+- ✅ Mikro
+- ✅ UKM
+
+4.✅ Beban Bunga Total
+a.✅ Beban Bunga Konven
+- ✅ Giro
+- ✅ Tabungan
+- ✅ Deposito
+b.✅ Beban Bunga Syariah
+- ✅ Giro
+- ✅ Tabungan
+- ✅ Deposito
+
+5.✅ FTP Income
+6.✅ FTP Charge
+7.✅ NII Post FTP
+
+8.✅ Fee Based Income -- belum dibuat MV, periode ada yang YYYY-MM
+- ✅ Account Maintenance
+- ✅ ATM
+- ✅ Mobile Banking (JOM)
+- ✅ EDC
+- ✅ CMS
+- ✅ JakOne Abank
+- ✅ Jasa Pemotongan
+- ✅ Bisnis Kartu
+- ✅ Bisnis SDB
+- ✅ Kiriman Uang
+- ✅ Restitusi Biaya Kantor
+- ✅ Pinalti Nasabah & Penolakan
+- ☑️ Sindikasi
+- ☑️ Trade Finance
+- ✅ Bank Garansi
+- ✅ Admin Kredit
+- ✅ Kerjasama Pihak Lain (Komisi Agen, Asuransi)
+- ☑️ Dividen Reksa Dana
+- ☑️ M2M Forek & SB
+- ✅ Lainnya (komisi notaris, denda tunggakan)
+- ☑️ Collection Recovery Income
+
+9.⚠️ Direct OPEX
+- ✅ Manpower
+- ✅ IT & Telecomunication
+- ✅ Office Supplies
+- ❓ Sewa (ATM, Kendaraan, Bangunan)
+- ✅ Perjalanan Dinas
+- ✅ Permium Insurance Non-Credit
+- ✅ Premi Asuransi Kredit
+- ✅ Transaksi Kredit
+- ❔ Transaksi Non Kredit
+
+10.❓ PPOP (Dir OPEX)
+11.✅ BEBAN CKPN (Retail Only) -- Belum dibuat MV, belum ada kolom periodes
+12.❓ PBT (Dir OPEX + Retail CKPN)
+
+13.❓ Interest Income (Post FTP)
+14.❓ Cost of Fund (Post FTP)
+15.❓ % Kredit of Portfolio
+16.❓ Minimum NII
+17.❓ Direct OPEX + Beban CKPN Retail - FBI
+a. ❓ Manpower
+b. ❓ Gap
+
+18.❓ Avg. Manpower Cost
+
+19. Optimasi OPEX
+a.❓ Total Income 
+b.❓ Maximum Cost
+c.❓ Intervention
+
+20. Improve Asset Quality & Collection	
+a.❓ Total PPOP
+b.❓ Maximum Cost
+c.❓ Intervention
