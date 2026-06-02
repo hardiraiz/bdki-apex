@@ -512,3 +512,292 @@ GROUP BY "periode", "kode_cabang";
 /
 CREATE INDEX BJKT_PNL_BEBAN_CKPN_MV_I1 ON BJKT_PNL_BEBAN_CKPN_MV("periode", "kode_cabang");
 /
+
+-- Table View Summary PnL
+CREATE OR REPLACE VIEW BJKT_PNL_SUMMARY_V AS
+SELECT
+    cre."periode" AS "periode",
+    cre."kode_cabang",
+    cre."nama_cabang",
+    cre."kode_konsol",
+    cre."nama_konsol",
+    
+    -- Avg. Balance Credit
+    cre."total_kredit",
+    cre."kredit_total_konven",
+    cre."kredit_konven_kmg",
+    cre."kredit_konven_kpr",
+    cre."kredit_konven_mikro",
+    cre."kredit_konven_ukm",
+    cre."kredit_total_syariah",
+    cre."kredit_syariah_kmg",
+    cre."kredit_syariah_kpr",
+    cre."kredit_syariah_mikro",
+    cre."kredit_syariah_ukm",
+
+    -- Avg. Balance DPK
+    dpk."total_dpk",
+    dpk."dpk_total_konven",
+    dpk."dpk_konven_giro",
+    dpk."dpk_konven_tabungan",
+    dpk."dpk_konven_deposito",
+    dpk."dpk_total_syariah",
+    dpk."dpk_syariah_giro",
+    dpk."dpk_syariah_tabungan",
+    dpk."dpk_syariah_deposito",
+
+    -- Pend. Bunga
+    pbt."total_pen_bunga",
+    pbt."total_bunga_konven",
+    pbt."bunga_konven_kmg",
+    pbt."bunga_konven_kpr",
+    pbt."bunga_konven_mikro",
+    pbt."bunga_konven_ukm",
+    pbt."total_bunga_syariah",
+    pbt."bunga_syariah_kmg",
+    pbt."bunga_syariah_kpr",
+    pbt."bunga_syariah_mikro",
+    pbt."bunga_syariah_ukm",
+
+    -- Beban Bunga Total
+    bbt."total_beban_bunga",
+    bbt."beban_bunga_konven",
+    bbt."beban_bunga_konven_giro",
+    bbt."beban_bunga_konven_tabungan",
+    bbt."beban_bunga_konven_deposito",
+    bbt."beban_bunga_total_syariah",
+    bbt."beban_bunga_syariah_giro",
+    bbt."beban_bunga_syariah_tabungan",
+    bbt."beban_bunga_syariah_deposito",
+
+    -- FTP Income
+    fi."ftp_income_dpk",
+
+    -- FTP Charge Loan
+    fc."ftp_charge_loan",
+
+    -- Fee Based Income
+    fbi."fbi_total",
+    fbi."fbi_acc_maint",
+    fbi."fbi_atm",
+    fbi."fbi_jom",
+    fbi."fbi_edc",
+    fbi."fbi_cms",
+    fbi."fbi_abank",
+    fbi."fbi_jas_pot",
+    fbi."fbi_bisnis_kartu",
+    fbi."fbi_bisnis_sdb",
+    fbi."fbi_kirim_uang",
+    fbi."fbi_rest_biaya_kantor",
+    fbi."fbi_pin_nas_pen",
+    fbi."fbi_bank_garansi",
+    fbi."fbi_admin_kredit",
+    fbi."fbi_lainnya",
+
+    -- NII-Post FTP
+    nii."nii_post_ftp",
+
+    -- Direct OPEX
+    0 "dir_opex_total",
+    opx."dir_opex_manpower",
+    opx."dir_opex_telecom",
+    opx."dir_opex_ofc_sup",
+    opx."dir_opex_per_din",
+    opx."dir_opex_prem_ins_ncr",
+    opx."dir_opex_prem_as_cr",
+    opx."dir_opex_tran_cr",
+    opx."dir_opex_tran_ncr",
+
+    -- Beban CKPN
+    ckpn."ckpn_nominal"
+
+FROM BJKT_PNL_AVG_BAL_CREDIT_MV cre
+LEFT JOIN BJKT_PNL_AVG_BAL_DPK_MV dpk
+    ON  cre."kode_cabang"       = dpk."kode_cabang"
+    AND cre."periode"           = dpk."periode"
+LEFT JOIN BJKT_PNL_PEN_BUNGA_TOTAL_MV pbt
+    ON  cre."kode_cabang"       = pbt."kode_cabang"
+    AND cre."periode"           = pbt."periode"
+LEFT JOIN BJKT_PNL_BEBAN_BUNGA_TOTAL_MV bbt
+    ON  cre."kode_cabang"       = bbt."kode_cabang"
+    AND cre."periode"           = bbt."periode"
+LEFT JOIN BJKT_PNL_FTP_INCOME_MV fi
+    ON  cre."kode_cabang"       = fi."kode_cabang"
+    AND cre."periode"           = fi."periode"
+LEFT JOIN BJKT_PNL_FTP_CHARGE_MV fc
+    ON  cre."kode_cabang"       = fc."kode_cabang"
+    AND cre."periode"           = fc."periode"
+LEFT JOIN BJKT_PNL_FEE_BASED_INCOME_MV fbi
+    ON  cre."kode_cabang"       = fbi."kode_cabang"
+    AND cre."periode"           = fbi."periode"
+LEFT JOIN BJKT_PNL_NII_POST_FTP_MV nii
+    ON  cre."kode_cabang"       = nii."kode_cabang"
+    AND cre."periode"           = nii."periode"
+LEFT JOIN BJKT_PNL_DIRECT_OPEX_MV opx
+    ON  cre."kode_cabang"       = opx."kode_cabang"
+    AND cre."periode"           = opx."periode"
+LEFT JOIN BJKT_PNL_BEBAN_CKPN_MV ckpn
+    ON  cre."kode_cabang"       = ckpn."kode_cabang"
+    AND cre."periode"           = ckpn."periode"
+;
+/
+
+-- Table view score card
+CREATE OR REPLACE VIEW BJKT_PNL_SCORE_CARD_V AS
+WITH q_unpivot AS (
+    SELECT
+        "periode" AS "periode",
+        "kode_cabang",
+        "nama_cabang",
+        "kode_konsol",
+        "nama_konsol",
+        "column_name",
+        "nominal"
+    FROM BJKT_PNL_SUMMARY_V
+    
+    UNPIVOT (
+        "nominal"
+        FOR "column_name" IN (
+
+            -- GROUP 1
+            "total_kredit"              AS 'AVG_BAL_KREDIT',
+            "kredit_total_konven"       AS 'KREDIT_KONVEN',
+            "kredit_konven_kmg"         AS 'KREDIT_KONVEN_KMG',
+            "kredit_konven_kpr"         AS 'KREDIT_KONVEN_KPR',
+            "kredit_konven_mikro"       AS 'KREDIT_KONVEN_MIKRO',
+            "kredit_konven_ukm"         AS 'KREDIT_KONVEN_UKM',
+            "kredit_total_syariah"      AS 'KREDIT_SYARIAH',
+            "kredit_syariah_kmg"        AS 'KREDIT_SYARIAH_KMG',
+            "kredit_syariah_kpr"        AS 'KREDIT_SYARIAH_KPR',
+            "kredit_syariah_mikro"      AS 'KREDIT_SYARIAH_MIKRO',
+            "kredit_syariah_ukm"        AS 'KREDIT_SYARIAH_UKM',
+
+            -- GROUP 2
+            "total_dpk"                 AS 'AVG_BAL_DPK',
+            "dpk_total_konven"          AS 'DPK_KONVEN',
+            "dpk_konven_giro"           AS 'DPK_KONVEN_GIRO',
+            "dpk_konven_tabungan"       AS 'DPK_KONVEN_TABUNGAN',
+            "dpk_konven_deposito"       AS 'DPK_KONVEN_DEPOSITO',
+            "dpk_total_syariah"         AS 'DPK_SYARIAH',
+            "dpk_syariah_giro"          AS 'DPK_SYARIAH_GIRO',
+            "dpk_syariah_tabungan"      AS 'DPK_SYARIAH_TABUNGAN',
+            "dpk_syariah_deposito"      AS 'DPK_SYARIAH_DEPOSITO',
+
+            -- GROUP 3
+            "total_pen_bunga"           AS 'PEND_BUNGA',
+            "total_bunga_konven"        AS 'BUNGA_KONVEN',
+            "bunga_konven_kmg"          AS 'BUNGA_KONVEN_KMG',
+            "bunga_konven_kpr"          AS 'BUNGA_KONVEN_KPR',
+            "bunga_konven_mikro"        AS 'BUNGA_KONVEN_MIKRO',
+            "bunga_konven_ukm"          AS 'BUNGA_KONVEN_UKM',
+            "total_bunga_syariah"       AS 'BUNGA_SYARIAH',
+            "bunga_syariah_kmg"         AS 'BUNGA_SYARIAH_KMG',
+            "bunga_syariah_kpr"         AS 'BUNGA_SYARIAH_KPR',
+            "bunga_syariah_mikro"       AS 'BUNGA_SYARIAH_MIKRO',
+            "bunga_syariah_ukm"         AS 'BUNGA_SYARIAH_UKM',
+
+            -- GROUP 4
+            "ftp_income_dpk"            AS 'FTP_INCOME',
+
+            -- GROUP 5
+            "ftp_charge_loan"           AS 'FTP_CHARGE',
+
+            -- GROUP 6
+            "dir_opex_total"            AS 'DIRECT_OPEX',
+            "dir_opex_manpower"         AS 'OPEX_MANPOWER',
+            "dir_opex_telecom"          AS 'OPEX_TELECOM',
+            "dir_opex_ofc_sup"          AS 'OPEX_OFFICE_SUPPLIES',
+            "dir_opex_per_din"          AS 'OPEX_PERJALANAN_DINAS',
+            "dir_opex_prem_ins_ncr"     AS 'OPEX_PREM_INS_NCR',
+            "dir_opex_prem_as_cr"       AS 'OPEX_PREM_AS_CR',
+            "dir_opex_tran_cr"          AS 'OPEX_TRAN_CR',
+            "dir_opex_tran_ncr"         AS 'OPEX_TRAN_NCR',
+
+            -- GROUP 7
+            "ckpn_nominal"              AS 'CKPN'
+        )
+    )
+)
+
+SELECT
+    "periode" AS "periode",
+    "kode_cabang",
+    "nama_cabang",
+    "kode_konsol",
+    "nama_konsol",
+    "column_name",
+    "nominal",
+
+    CASE
+        WHEN "column_name" IN (
+            'AVG_BAL_KREDIT',
+            'KREDIT_KONVEN',
+            'KREDIT_KONVEN_KMG',
+            'KREDIT_KONVEN_KPR',
+            'KREDIT_KONVEN_MIKRO',
+            'KREDIT_KONVEN_UKM',
+            'KREDIT_SYARIAH',
+            'KREDIT_SYARIAH_KMG',
+            'KREDIT_SYARIAH_KPR',
+            'KREDIT_SYARIAH_MIKRO',
+            'KREDIT_SYARIAH_UKM'
+        )
+        THEN 1
+
+        WHEN "column_name" IN (
+            'AVG_BAL_DPK',
+            'DPK_KONVEN',
+            'DPK_KONVEN_GIRO',
+            'DPK_KONVEN_TABUNGAN',
+            'DPK_KONVEN_DEPOSITO',
+            'DPK_SYARIAH',
+            'DPK_SYARIAH_GIRO',
+            'DPK_SYARIAH_TABUNGAN',
+            'DPK_SYARIAH_DEPOSITO'
+        )
+        THEN 2
+
+        WHEN "column_name" IN (
+            'PEND_BUNGA',
+            'BUNGA_KONVEN',
+            'BUNGA_KONVEN_KMG',
+            'BUNGA_KONVEN_KPR',
+            'BUNGA_KONVEN_MIKRO',
+            'BUNGA_KONVEN_UKM',
+            'BUNGA_SYARIAH',
+            'BUNGA_SYARIAH_KMG',
+            'BUNGA_SYARIAH_KPR',
+            'BUNGA_SYARIAH_MIKRO',
+            'BUNGA_SYARIAH_UKM'
+        )
+        THEN 3
+
+        WHEN "column_name" = 'FTP_INCOME'
+        THEN 4
+
+        WHEN "column_name" = 'FTP_CHARGE'
+        THEN 5
+
+        WHEN "column_name" LIKE 'OPEX%'
+        THEN 6
+
+        WHEN "column_name" = 'CKPN'
+        THEN 7
+    END AS "group_number",
+
+    CASE
+        WHEN "column_name" IN (
+            'AVG_BAL_KREDIT',
+            'AVG_BAL_DPK',
+            'PEND_BUNGA',
+            'FTP_INCOME',
+            'FTP_CHARGE',
+            'CKPN',
+            'DIRECT_OPEX'
+        )
+        THEN 'Y'
+        ELSE 'N'
+    END AS "is_header"
+
+FROM q_unpivot;
+/

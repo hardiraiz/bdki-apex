@@ -105,18 +105,19 @@ SET DEFINE OFF;
     SELECT
         "periode",
         "kode_cabang_akhir" AS "cabang",
-        ABS(ROUND(SUM(
-            CASE WHEN "ket_final" IN (
-                'Manpower',
-                'IT & Telecommunication',
-                'Office Supplies',
-                'Perjalanan Dinas',
-                'Premium Insurance Non-Credit',
-                'Premi Asuransi Kredit',
-                'Transaksi Kredit',
-                'Transaksi Non Kredit'
-            ) THEN "nominal" END
-        ) / POWER(10,6))) "dir_total_opex",
+        -- ABS(ROUND(SUM(
+        --     CASE WHEN "ket_final" IN (
+        --         'Manpower',
+        --         'IT & Telecommunication',
+        --         'Office Supplies',
+        --         'Perjalanan Dinas',
+        --         'Premium Insurance Non-Credit',
+        --         'Premi Asuransi Kredit',
+        --         'Transaksi Kredit',
+        --         'Transaksi Non Kredit'
+        --     ) THEN "nominal" END
+        -- ) / POWER(10,6))) "dir_total_opex",
+        ROUND(SUM("nominal") / POWER(10,6)) AS "dir_total_opex",
         ROUND(SUM(CASE WHEN "ket_final" = 'Manpower' THEN "nominal" ELSE NULL END) / POWER(10,6))
             AS "dir_opex_manpower",
         ROUND(SUM(CASE WHEN "ket_final" = 'IT & Telecommunication' THEN "nominal" ELSE NULL END) / POWER(10,6))
@@ -315,6 +316,10 @@ ftp_income AS (
 )
 SELECT
     bb."cabang",
+    bb."total_beban_bunga",
+    pb."total_pen_bunga",
+    fc."ftp_charge_loan",
+    fi."ftp_income_dpk",
     ROUND (
         NVL(bb."total_beban_bunga", 0)
       + NVL(pb."total_pen_bunga", 0)
