@@ -1,31 +1,40 @@
+<!-- List Object tidak valid -->
+BJKT_PNL_FEE_BASED_INCOME_MV -> error konversi (DONE)
+BJKT_PNL_NII_POST_FTP_MV -> dijadikan sub query saja bukan jadi materialized view
+
+
+<!-- Beban CKPN dan Bank Garansi belum sesuai, judul Direct OPEX belum sesuai -->
+
 *[LIST RUMUS EXCEL]*
 ❔: TIDAK SESUAI
 ❓: BELUM ADA RUMUS
 ⚠️: TERKENDALA CEK
 
-9.⚠️ Direct OPEX - NOTE: Rumus Sum, transaksi non kredit belum sesuai
-- ❓ Sewa (ATM, Kendaraan, Bangunan)
-- ❔ Transaksi Non Kredit
-
-10.⚠️ PPOP (Dir OPEX) - NOTE: Direct Opex belum selesai
-12.⚠️ PBT (Dir OPEX + Retail CKPN) - NOTE: PPOP terkendala
-16.⚠️ Minimum NII - NOTE: Direct Opex belum selesai / rumus sum Direct Opex
+8.❔ Fee Based Income - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh 
+10.❔ PPOP (Dir OPEX)
+12.❔ PBT (Dir OPEX + Retail CKPN) - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
+16.❔ Minimum NII - NOTE: Nilai kalkulasi belum sesuai
 
 17. Direct OPEX + Beban CKPN Retail - FBI
-a. ⚠️ Minimum Portofolio Total - NOTE: Mininum portofolio belum selesai
-b. ⚠️ Gap Total - NOTE: Gap belum selesai
-c. ⚠️ Minimum Portofolio 1 - NOTE: Minimum NII belum fix
-d. ⚠️ Gap 1 - NOTE: Minimum Portofolio Total Belum selesai
-e. ⚠️ Minimum Portofolio 2 - NOTE: Minimum NII belum fix
-f. ⚠️ Gap 2 - NOTE: Minimum Portofolio 2 belum selesai
+a. ❔ Minimum Portofolio Total - NOTE: Mininum portofolio data belum sesuai
+b. ❔ Gap Total - NOTE: Gap belum selesai
+c. ❔ Minimum Portofolio 1 - NOTE: Minimum NII belum sesuai
+d. ❔ Gap 1 - NOTE: Minimum Portofolio Total Belum selesai
+e. ❔ Minimum Portofolio 2 - NOTE: Minimum NII belum sesuai
+f. ❔ Gap 2 - NOTE: Minimum Portofolio 2 belum selesai
 
 18.❓ Avg. Manpower Cost
 
-19. Optimasi OPEX 
-b.❓ Maximum Cost
-c.❓ Intervention
+19. Optimasi OPEX
+b.❓ Maximum Cost - Rumus di excel bagian bawah sejajar dengan Direct OPEX
+c.❓ Intervention - Rumus di excel bagian bawah sejajar dengan Direct OPEX
 
 20. Improve Asset Quality & Collection	
-a.⚠️ Total PPOP - NOTE: Direct OPEX belum complete
-b.❓ Maximum Cost
-c.❓ Intervention
+a.❔ Total PPOP - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
+
+
+
+
+
+b.❓ Maximum Cost - Take out
+c.❓ Intervention - Take out

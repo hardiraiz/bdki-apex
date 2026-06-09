@@ -1,3 +1,8 @@
+NOTE:
+- Filter data summary dan scorecard berdasarkan user login konsolidasi dan cabang (Satu KC)
+- Buat satu role 
+
+
 *[LIST TABLE DWH]*
 ✅: OK 
 ⚠️: NEED ACCESS 
@@ -72,7 +77,7 @@ b.✅ Beban Bunga Syariah
 6.✅ FTP Charge
 7.✅ NII Post FTP
 
-8.✅ Fee Based Income
+8.❔ Fee Based Income - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh 
 - ✅ Account Maintenance
 - ✅ ATM
 - ✅ Mobile Banking (JOM)
@@ -95,33 +100,33 @@ b.✅ Beban Bunga Syariah
 - ✅ Lainnya (komisi notaris, denda tunggakan)
 - ☑️ Collection Recovery Income
 
-9.⚠️ Direct OPEX - NOTE: Rumus Sum, transaksi non kredit belum sesuai
+9.✅ Direct OPEX
 - ✅ Manpower
 - ✅ IT & Telecomunication
 - ✅ Office Supplies
-- ❓ Sewa (ATM, Kendaraan, Bangunan)
+- ✅ Sewa (ATM, Kendaraan, Bangunan)
 - ✅ Perjalanan Dinas
 - ✅ Permium Insurance Non-Credit
 - ✅ Premi Asuransi Kredit
 - ✅ Transaksi Kredit
-- ❔ Transaksi Non Kredit
+- ✅ Transaksi Non Kredit
 
-10.⚠️ PPOP (Dir OPEX) - NOTE: Direct Opex belum selesai
+10.❔ PPOP (Dir OPEX) - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
 11.✅ BEBAN CKPN (Retail Only)
-12.⚠️ PBT (Dir OPEX + Retail CKPN) - NOTE: PPOP terkendala
+12.❔ PBT (Dir OPEX + Retail CKPN) - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
 
 <!-- SUMMARY PNL SAMPAI DISINI -->
 
 13.✅ Interest Income (Post FTP)
 14.✅ Cost of Fund (Post FTP)
 15.✅ % Kredit of Portfolio
-16.⚠️ Minimum NII - NOTE: Direct Opex belum selesai / rumus sum Direct Opex
+16.❔ Minimum NII - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
 17. Direct OPEX + Beban CKPN Retail - FBI
-a. ⚠️ Minimum Portofolio Total - NOTE: Mininum portofolio belum selesai
+a. ⚠️ Minimum Portofolio Total - NOTE: Mininum portofolio data belum sesuai
 b. ⚠️ Gap Total - NOTE: Gap belum selesai
-c. ⚠️ Minimum Portofolio 1 - NOTE: Minimum NII belum fix
+c. ⚠️ Minimum Portofolio 1 - NOTE: Minimum NII belum sesuai
 d. ⚠️ Gap 1 - NOTE: Minimum Portofolio Total Belum selesai
-e. ⚠️ Minimum Portofolio 2 - NOTE: Minimum NII belum fix
+e. ⚠️ Minimum Portofolio 2 - NOTE: Minimum NII belum sesuai
 f. ⚠️ Gap 2 - NOTE: Minimum Portofolio 2 belum selesai
 
 18.❓ Avg. Manpower Cost
@@ -132,6 +137,6 @@ b.❓ Maximum Cost
 c.❓ Intervention
 
 20. Improve Asset Quality & Collection	
-a.⚠️ Total PPOP - NOTE: Direct OPEX belum complete
+a.❔ Total PPOP - Note: Total FBI Ada yang selisih satu angka dan yang selisih cukup jauh
 b.❓ Maximum Cost
 c.❓ Intervention
