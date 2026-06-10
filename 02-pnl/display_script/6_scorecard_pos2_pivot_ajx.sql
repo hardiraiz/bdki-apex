@@ -119,7 +119,7 @@ BEGIN
                 opx."kode_konsol",
 
                 -- Optimasi Total = -NII + CKPN
-                (
+                ROUND(
                     -1 * (
                         NVL(fbi."fbi_total",          0) +
                         NVL(bbt."total_beban_bunga",  0) +
@@ -130,7 +130,7 @@ BEGIN
                 ) AS "optimasi_total",
 
                 -- Komponen non-manpower (untuk menghitung optimasi_manpower)
-                (
+                ROUND(
                     NVL(opx."dir_opex_telecom",      0) +
                     NVL(opx."dir_opex_ofc_sup",      0) +
                     NVL(opx."dir_opex_sewa",         0) +
@@ -142,14 +142,14 @@ BEGIN
                 ) AS "non_manpower_total",
 
                 -- Detail OPEX
-                opx."dir_opex_telecom",
-                opx."dir_opex_ofc_sup",
-                opx."dir_opex_sewa",
-                opx."dir_opex_per_din",
-                opx."dir_opex_prem_ins_ncr",
-                opx."dir_opex_prem_as_cr",
-                opx."dir_opex_tran_cr",
-                opx."dir_opex_tran_ncr"
+                ROUND(opx."dir_opex_telecom")       AS "dir_opex_telecom",
+                ROUND(opx."dir_opex_ofc_sup")       AS "dir_opex_ofc_sup",
+                ROUND(opx."dir_opex_sewa")          AS "dir_opex_sewa",
+                ROUND(opx."dir_opex_per_din")       AS "dir_opex_per_din",
+                ROUND(opx."dir_opex_prem_ins_ncr")  AS "dir_opex_prem_ins_ncr",
+                ROUND(opx."dir_opex_prem_as_cr")    AS "dir_opex_prem_as_cr",
+                ROUND(opx."dir_opex_tran_cr")       AS "dir_opex_tran_cr",
+                ROUND(opx."dir_opex_tran_ncr")      AS "dir_opex_tran_ncr"
 
             FROM opx
             LEFT JOIN fbi  ON fbi."kode_konsol"  = opx."kode_konsol" AND fbi."kode_cabang"  = opx."kode_cabang"
@@ -387,7 +387,7 @@ BEGIN
                 71 + n.rn      AS "sort_order",
                 'Y'            AS "is_header"
             FROM q_calc
-            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4) n
+            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3) n
         )
         SELECT
             "maximum_cost" as maximum_cost,

@@ -263,123 +263,109 @@ q_base AS (
         cre."nama_konsol",
 
         -- Avg. Balance Kredit
-        cre."total_kredit",
-        cre."kredit_total_konven",
-        cre."kredit_konven_kmg",
-        cre."kredit_konven_kpr",
-        cre."kredit_konven_mikro",
-        cre."kredit_konven_ukm",
-        cre."kredit_total_syariah",
-        cre."kredit_syariah_kmg",
-        cre."kredit_syariah_kpr",
-        cre."kredit_syariah_mikro",
-        cre."kredit_syariah_ukm",
+        ROUND(cre."total_kredit")           AS "total_kredit",
+        ROUND(cre."kredit_total_konven")    AS "kredit_total_konven",
+        ROUND(cre."kredit_konven_kmg")      AS "kredit_konven_kmg",
+        ROUND(cre."kredit_konven_kpr")      AS "kredit_konven_kpr",
+        ROUND(cre."kredit_konven_mikro")    AS "kredit_konven_mikro",
+        ROUND(cre."kredit_konven_ukm")      AS "kredit_konven_ukm",
+        ROUND(cre."kredit_total_syariah")   AS "kredit_total_syariah",
+        ROUND(cre."kredit_syariah_kmg")     AS "kredit_syariah_kmg",
+        ROUND(cre."kredit_syariah_kpr")     AS "kredit_syariah_kpr",
+        ROUND(cre."kredit_syariah_mikro")   AS "kredit_syariah_mikro",
+        ROUND(cre."kredit_syariah_ukm")     AS "kredit_syariah_ukm",
 
         -- Avg. Balance DPK
-        dpk."total_dpk",
-        dpk."dpk_total_konven",
-        dpk."dpk_konven_giro",
-        dpk."dpk_konven_tabungan",
-        dpk."dpk_konven_deposito",
-        dpk."dpk_total_syariah",
-        dpk."dpk_syariah_giro",
-        dpk."dpk_syariah_tabungan",
-        dpk."dpk_syariah_deposito",
+        ROUND(dpk."total_dpk")              AS "total_dpk",
+        ROUND(dpk."dpk_total_konven")       AS "dpk_total_konven",
+        ROUND(dpk."dpk_konven_giro")        AS "dpk_konven_giro",
+        ROUND(dpk."dpk_konven_tabungan")    AS "dpk_konven_tabungan",
+        ROUND(dpk."dpk_konven_deposito")    AS "dpk_konven_deposito",
+        ROUND(dpk."dpk_total_syariah")      AS "dpk_total_syariah",
+        ROUND(dpk."dpk_syariah_giro")       AS "dpk_syariah_giro",
+        ROUND(dpk."dpk_syariah_tabungan")   AS "dpk_syariah_tabungan",
+        ROUND(dpk."dpk_syariah_deposito")   AS "dpk_syariah_deposito",
 
-        -- Pendapatan bunga
-        pbt."total_pen_bunga",
-        pbt."total_bunga_konven",
-        pbt."bunga_konven_kmg",
-        pbt."bunga_konven_kpr",
-        pbt."bunga_konven_mikro",
-        pbt."bunga_konven_ukm",
-        pbt."total_bunga_syariah",
-        pbt."bunga_syariah_kmg",
-        pbt."bunga_syariah_kpr",
-        pbt."bunga_syariah_mikro",
-        pbt."bunga_syariah_ukm",
+        -- Pendapatan Bunga
+        ROUND(pbt."total_pen_bunga")        AS "total_pen_bunga",
+        ROUND(pbt."total_bunga_konven")     AS "total_bunga_konven",
+        ROUND(pbt."bunga_konven_kmg")       AS "bunga_konven_kmg",
+        ROUND(pbt."bunga_konven_kpr")       AS "bunga_konven_kpr",
+        ROUND(pbt."bunga_konven_mikro")     AS "bunga_konven_mikro",
+        ROUND(pbt."bunga_konven_ukm")       AS "bunga_konven_ukm",
+        ROUND(pbt."total_bunga_syariah")    AS "total_bunga_syariah",
+        ROUND(pbt."bunga_syariah_kmg")      AS "bunga_syariah_kmg",
+        ROUND(pbt."bunga_syariah_kpr")      AS "bunga_syariah_kpr",
+        ROUND(pbt."bunga_syariah_mikro")    AS "bunga_syariah_mikro",
+        ROUND(pbt."bunga_syariah_ukm")      AS "bunga_syariah_ukm",
 
         -- Beban Bunga
-        bbt."total_beban_bunga",
-        bbt."beban_bunga_konven",
-        bbt."beban_bunga_konven_giro",
-        bbt."beban_bunga_konven_tabungan",
-        bbt."beban_bunga_konven_deposito",
-        bbt."beban_bunga_total_syariah",
-        bbt."beban_bunga_syariah_giro",
-        bbt."beban_bunga_syariah_tabungan",
-        bbt."beban_bunga_syariah_deposito",
+        ROUND(bbt."total_beban_bunga")              AS "total_beban_bunga",
+        ROUND(bbt."beban_bunga_konven")             AS "beban_bunga_konven",
+        ROUND(bbt."beban_bunga_konven_giro")        AS "beban_bunga_konven_giro",
+        ROUND(bbt."beban_bunga_konven_tabungan")    AS "beban_bunga_konven_tabungan",
+        ROUND(bbt."beban_bunga_konven_deposito")    AS "beban_bunga_konven_deposito",
+        ROUND(bbt."beban_bunga_total_syariah")      AS "beban_bunga_total_syariah",
+        ROUND(bbt."beban_bunga_syariah_giro")       AS "beban_bunga_syariah_giro",
+        ROUND(bbt."beban_bunga_syariah_tabungan")   AS "beban_bunga_syariah_tabungan",
+        ROUND(bbt."beban_bunga_syariah_deposito")   AS "beban_bunga_syariah_deposito",
 
-        -- FTP Income
-        fi."ftp_income_dpk",
+        -- FTP
+        ROUND(fi."ftp_income_dpk")          AS "ftp_income_dpk",
+        ROUND(fc."ftp_charge_loan")         AS "ftp_charge_loan",
 
-        -- FTP Charge
-        fc."ftp_charge_loan",
-
-        -- NII-Post FTP
+        -- NII-Post FTP (sudah ada ROUND)
         ROUND(
-              NVL(bbt."total_beban_bunga", 0)
-            + NVL(pbt."total_pen_bunga",   0)
-            + NVL(fc."ftp_charge_loan",   0)
-            + NVL(fi."ftp_income_dpk",    0)
+            NVL(bbt."total_beban_bunga", 0) + NVL(pbt."total_pen_bunga", 0)
+            + NVL(fc."ftp_charge_loan", 0)  + NVL(fi."ftp_income_dpk", 0)
         ) AS "nii_post_ftp",
 
         -- Fee Based Income
-        fbi."fbi_total",
-        fbi."fbi_acc_maint",
-        fbi."fbi_atm",
-        fbi."fbi_jom",
-        fbi."fbi_edc",
-        fbi."fbi_cms",
-        fbi."fbi_abank",
-        fbi."fbi_jas_pot",
-        fbi."fbi_bisnis_kartu",
-        fbi."fbi_bisnis_sdb",
-        fbi."fbi_kirim_uang",
-        fbi."fbi_rest_biaya_kantor",
-        fbi."fbi_pin_nas_pen",
-        fbi."fbi_bank_garansi",
-        fbi."fbi_admin_kredit",
-        fbi."fbi_lainnya",    
+        ROUND(fbi."fbi_total")              AS "fbi_total",
+        ROUND(fbi."fbi_acc_maint")          AS "fbi_acc_maint",
+        ROUND(fbi."fbi_atm")                AS "fbi_atm",
+        ROUND(fbi."fbi_jom")                AS "fbi_jom",
+        ROUND(fbi."fbi_edc")                AS "fbi_edc",
+        ROUND(fbi."fbi_cms")                AS "fbi_cms",
+        ROUND(fbi."fbi_abank")              AS "fbi_abank",
+        ROUND(fbi."fbi_jas_pot")            AS "fbi_jas_pot",
+        ROUND(fbi."fbi_bisnis_kartu")       AS "fbi_bisnis_kartu",
+        ROUND(fbi."fbi_bisnis_sdb")         AS "fbi_bisnis_sdb",
+        ROUND(fbi."fbi_kirim_uang")         AS "fbi_kirim_uang",
+        ROUND(fbi."fbi_rest_biaya_kantor")  AS "fbi_rest_biaya_kantor",
+        ROUND(fbi."fbi_pin_nas_pen")        AS "fbi_pin_nas_pen",
+        ROUND(fbi."fbi_bank_garansi")       AS "fbi_bank_garansi",
+        ROUND(fbi."fbi_admin_kredit")       AS "fbi_admin_kredit",
+        ROUND(fbi."fbi_lainnya")            AS "fbi_lainnya",
 
         -- Direct OPEX
-        opx."dir_opex_total",
-        opx."dir_opex_manpower",
-        opx."dir_opex_telecom",
-        opx."dir_opex_ofc_sup",
-        opx."dir_opex_sewa",
-        opx."dir_opex_per_din",
-        opx."dir_opex_prem_ins_ncr",
-        opx."dir_opex_prem_as_cr",
-        opx."dir_opex_tran_cr",
-        opx."dir_opex_tran_ncr",
+        ROUND(opx."dir_opex_total")         AS "dir_opex_total",
+        ROUND(opx."dir_opex_manpower")      AS "dir_opex_manpower",
+        ROUND(opx."dir_opex_telecom")       AS "dir_opex_telecom",
+        ROUND(opx."dir_opex_ofc_sup")       AS "dir_opex_ofc_sup",
+        ROUND(opx."dir_opex_sewa")          AS "dir_opex_sewa",
+        ROUND(opx."dir_opex_per_din")       AS "dir_opex_per_din",
+        ROUND(opx."dir_opex_prem_ins_ncr")  AS "dir_opex_prem_ins_ncr",
+        ROUND(opx."dir_opex_prem_as_cr")    AS "dir_opex_prem_as_cr",
+        ROUND(opx."dir_opex_tran_cr")       AS "dir_opex_tran_cr",
+        ROUND(opx."dir_opex_tran_ncr")      AS "dir_opex_tran_ncr",
 
-        -- PPOP (Dir OPEX)
-        (
-            (
-                  NVL(bbt."total_beban_bunga", 0)
-                + NVL(pbt."total_pen_bunga",   0)
-                + NVL(fc."ftp_charge_loan",   0)
-                + NVL(fi."ftp_income_dpk",    0)
-            ) +
-            NVL(fbi."fbi_total", 0) +
-            NVL(opx."dir_opex_total", 0)
+        -- PPOP (sudah ada ROUND)
+        ROUND(
+            (NVL(bbt."total_beban_bunga",0) + NVL(pbt."total_pen_bunga",0)
+            + NVL(fc."ftp_charge_loan",0) + NVL(fi."ftp_income_dpk",0))
+            + NVL(fbi."fbi_total",0) + NVL(opx."dir_opex_total",0)
         ) AS "ppop_total",
 
-        -- Beban CKPN
-        ckpn."ckpn_nominal",
+        -- CKPN
+        ROUND(ckpn."ckpn_nominal")          AS "ckpn_nominal",
 
-        -- PBT (Dir OPEX)
-        (
-            (
-                  NVL(bbt."total_beban_bunga", 0)
-                + NVL(pbt."total_pen_bunga",   0)
-                + NVL(fc."ftp_charge_loan",   0)
-                + NVL(fi."ftp_income_dpk",    0)
-            ) +
-            NVL(fbi."fbi_total", 0) +
-            NVL(opx."dir_opex_total", 0) +
-            NVL(ckpn."ckpn_nominal", 0)
+        -- PBT (sudah ada ROUND)
+        ROUND(
+            (NVL(bbt."total_beban_bunga",0) + NVL(pbt."total_pen_bunga",0)
+            + NVL(fc."ftp_charge_loan",0) + NVL(fi."ftp_income_dpk",0))
+            + NVL(fbi."fbi_total",0) + NVL(opx."dir_opex_total",0)
+            + NVL(ckpn."ckpn_nominal",0)
         ) AS "pbt_nominal"
 
         FROM cre

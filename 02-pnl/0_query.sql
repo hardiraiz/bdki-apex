@@ -64,7 +64,7 @@ SELECT * FROM BJKT_PNL_DPK_AVG_SY;
 SELECT * FROM BJKT_PNL_GL_V2_SY;
 SELECT * FROM BJKT_PNL_FBI_SY WHERE "periode" <> '2026-03-31';
 SELECT * FROM BJKT_PNL_CKPN_SY WHERE "periode" <> '2026-03-31';
-SELECT * FROM BJKT_PNL_CKPN_SY;
+SELECT * FROM BJKT_PNL_CKPN_SY WHERE "kode_cabang" = '727';
 /
 
 SELECT * FROM BJKT_BRANCHES_MV;
@@ -546,3 +546,14 @@ WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUA
     AND "periode" <  TO_DATE(:P1000_PERIOD_TO, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
     AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
 GROUP BY "kode_cabang";
+
+SELECT
+    "kode_cabang",
+    "kode_konsol",
+    SUM("ckpn_nominal") AS "ckpn_nominal"
+FROM BJKT_PNL_BEBAN_CKPN_MV
+WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+    AND "periode" <  TO_DATE(:P1000_PERIOD_TO, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+    AND "kode_konsol" = NVL(:P1000_KC, "kode_konsol")
+    AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
+GROUP BY "kode_cabang", "kode_konsol";

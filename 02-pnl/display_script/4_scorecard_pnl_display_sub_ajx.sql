@@ -138,7 +138,7 @@ BEGIN
                 "kelas_branch"
             FROM BJKT_BRANCHES_MV
             WHERE "kode_konsol" = l_kc 
-            AND "kode_cabang" = l_cabang
+            AND "kode_cabang_akhir" = l_cabang
         )
         SELECT
             pbt."kode_cabang",
@@ -170,7 +170,7 @@ BEGIN
             ROUND(cre."total_kredit" / (cre."total_kredit" + dpk."total_dpk"), 3)
                 AS "kredit_portofolio_val",
             
-            (
+            ROUND(
                 NVL(fbi."fbi_total", 0)
                 + NVL(bbt."total_beban_bunga", 0)
                 + NVL(pbt."total_pen_bunga",   0)
@@ -178,13 +178,13 @@ BEGIN
                 + NVL(fi."ftp_income_dpk",    0)
             ) AS "total_income",
 
-            (
+            ROUND(
                 NVL((opx."dir_opex_total"), 0) +
                 NVL((ckpn."ckpn_nominal"), 0) +
                 NVL((fbi."fbi_total"), 0)
             ) AS "min_nii_nominal",
 
-            (
+            ROUND(
                 NVL(bbt."total_beban_bunga", 0) + 
                 NVL(pbt."total_pen_bunga",   0) + 
                 NVL(fc."ftp_charge_loan",   0) +
