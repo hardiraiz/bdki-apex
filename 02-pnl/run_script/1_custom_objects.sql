@@ -1,4 +1,5 @@
--- SET DEFINE OFF;
+SET DEFINE OFF;
+/
 
 CREATE OR REPLACE SYNONYM BJKT_PNL_ECHANNEL_SY
 FOR "dwh"."pnl_echannel"@DWH;
@@ -803,10 +804,10 @@ gl_summary AS (
     SELECT
         g."kode_cabang_akhir",
         SUM(CASE WHEN g."ket_final" = 'Manpower'
-                 THEN g."nominal" END)              AS "manpower_raw",
+                 THEN g."nom" END)              AS "manpower_raw",
         SUM(CASE WHEN g."ket_final" = 'IT & Telecommunication'
-                 THEN g."nominal" END)              AS "telecom_raw"
-    FROM BJKT_PNL_GL_V2_SY g
+                 THEN g."nom" END)              AS "telecom_raw"
+    FROM BJKT_PNL_OPEX_V2_SY g
     WHERE g."ket_final" IN ('Manpower', 'IT & Telecommunication')
     GROUP BY g."kode_cabang_akhir"
 ),
@@ -929,6 +930,28 @@ WHERE
 GROUP BY "periode", "kode_cabang", "kode_konsol";
 /
 CREATE INDEX BJKT_PNL_BEBAN_CKPN_MV_I1 ON BJKT_PNL_BEBAN_CKPN_MV("periode", "kode_cabang");
+/
+
+-- Materialized view list data Beban CKPN
+DROP MATERIALIZED VIEW BJKT_PNL_BEBAN_CKPN_TOT_MV;
+/
+CREATE MATERIALIZED VIEW BJKT_PNL_BEBAN_CKPN_TOT_MV
+BUILD IMMEDIATE
+REFRESH COMPLETE ON DEMAND
+AS
+SELECT
+    "periode"                                  AS "periode",
+    "kode_cabang"                              AS "kode_cabang",
+    "kode_konsol",
+    ABS((SUM("nom_ckpn") / POWER(10,6)))  AS "ckpn_nominal"
+FROM BJKT_PNL_CKPN_SY
+WHERE
+        -- "tipe_segment" IN ('Konsumer', 'Mikro', 'UKM')
+        "produk" = 'Konven'
+    -- AND "produk" = 'Konven' -- hilangkan filter produk Hardi: 10-Jun-26
+GROUP BY "periode", "kode_cabang", "kode_konsol";
+/
+CREATE INDEX BJKT_PNL_BEBAN_CKPN_TOT_MV_I1 ON BJKT_PNL_BEBAN_CKPN_TOT_MV("periode", "kode_cabang");
 /
 
 -- Table View Summary PnL

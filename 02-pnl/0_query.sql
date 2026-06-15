@@ -65,7 +65,65 @@ SELECT * FROM BJKT_PNL_GL_V2_SY;
 SELECT * FROM BJKT_PNL_FBI_SY WHERE "periode" <> '2026-03-31';
 SELECT * FROM BJKT_PNL_CKPN_SY WHERE "periode" <> '2026-03-31';
 SELECT * FROM BJKT_PNL_CKPN_SY WHERE "kode_cabang" = '727';
+SELECT * FROM BJKT_PNL_OPEX_V2_SY;
 /
+
+-- query jumlah konsol
+SELECT COUNT(DISTINCT "kode_konsol") AS jml_konsol
+FROM BJKT_DIM_BRANCH_V2_SY
+WHERE "kode_konsol" NOT IN ('0', '900');
+
+-- query jumlah cabang
+SELECT COUNT(*) AS tot_cabang
+FROM (
+    SELECT DISTINCT
+        "kode_cabang_akhir",
+        "nama_kantor_akhir",
+        "kode_konsol",
+        "nama_konsol"
+    FROM BJKT_DIM_BRANCH_V2_SY
+    WHERE substr("kode_cabang_awal", 1, 1) NOT IN ('0', '9')
+      AND "kode_cabang_awal"               NOT IN ('700', '100', '798','420','799')
+);
+
+-- query summary total saat ini adjust 2 sintaks diata
+SELECT
+    COUNT(DISTINCT "kode_konsol")       AS jml_konsol,
+    COUNT(DISTINCT "kode_cabang_akhir") AS tot_cabang,
+    COUNT(DISTINCT CASE
+        WHEN "kode_konsol" = NVL(l_kc, "kode_konsol") 
+            AND "kode_cabang_akhir" = NVL(l_cabang,  "kode_cabang_akhir")
+        THEN "kode_cabang_akhir"
+    END)                                AS jml_cabang
+FROM BJKT_BRANCHES_MV;
+
+
+SELECT
+    -- Jumlah konsol
+    COUNT(DISTINCT CASE
+        WHEN "kode_konsol" NOT IN ('0', '900')
+        THEN "kode_konsol"
+    END)                                        AS jml_konsol,
+
+    -- Total cabang (distinct kombinasi 4 kolom, filter ketat)
+    COUNT(DISTINCT CASE
+        WHEN substr("kode_cabang_awal", 1, 1) NOT IN ('0', '9')
+         AND "kode_cabang_awal" NOT IN ('700', '100', '798', '420', '799')
+        THEN "kode_cabang_akhir" || '|~|' || "nama_kantor_akhir"
+          || '|~|' || "kode_konsol"  || '|~|' || "nama_konsol"
+    END)                                        AS tot_cabang,
+
+    -- Jumlah cabang dengan filter opsional (bind variable APEX)
+    COUNT(DISTINCT CASE
+        WHEN substr("kode_cabang_awal", 1, 1) NOT IN ('0', '9')
+         AND "kode_cabang_awal" NOT IN ('700', '100', '798', '420', '799')
+         AND "kode_konsol"       = NVL(:P1_KC,     "kode_konsol")
+         AND "kode_cabang_akhir" = NVL(:P1_CABANG, "kode_cabang_akhir")
+        THEN "kode_cabang_akhir" || '|~|' || "nama_kantor_akhir"
+          || '|~|' || "kode_konsol"  || '|~|' || "nama_konsol"
+    END)                                        AS jml_cabang
+
+FROM BJKT_BRANCHES_MV;
 
 SELECT * FROM BJKT_BRANCHES_MV;
 SELECT * FROM BJKT_PNL_AVG_BAL_CREDIT_MV;

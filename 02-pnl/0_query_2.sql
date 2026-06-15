@@ -5,10 +5,14 @@ FROM (
         AND "periode" = '2026-03-31'
 )
 WHERE "kode_cabang_akhir" = '108';
+/
 
 SELECT * FROM BJKT_PNL_FEE_BASED_INCOME_MV WHERE "kode_cabang" = '108';
+/
 
 SET DEFINE OFF;
+/
+
 SELECT
     "periode"       AS "periode",
     "kode_cabang",
@@ -94,6 +98,7 @@ FROM (
         "kode_cabang_akhir",
         "kode_konsol"
 );
-
+/
 
 SELECT * FROM BJKT_PNL_FBI_SY WHERE "nomor_rekening" = '432003602100' and "kode_cabang_akhir" = '108';
+/

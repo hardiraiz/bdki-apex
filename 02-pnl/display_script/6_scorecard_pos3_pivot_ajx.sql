@@ -184,20 +184,20 @@ BEGIN
                 '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
                 44 + n.rn AS "sort_order", 'N' AS "is_header"
             FROM q_calc
-            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 15) n
+            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 17) n
 
             UNION ALL
 
             SELECT "kode_cabang", "kode_konsol",
                 '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
-                60 AS "sort_order", 'Y' AS "is_header"
+                62 AS "sort_order", 'Y' AS "is_header"
             FROM q_calc
 
             UNION ALL
 
             SELECT "kode_cabang", "kode_konsol",
                 '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
-                60 + n.rn AS "sort_order", 'N' AS "is_header"
+                62 + n.rn AS "sort_order", 'N' AS "is_header"
             FROM q_calc
             CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 9) n
 
@@ -205,7 +205,7 @@ BEGIN
 
             SELECT "kode_cabang", "kode_konsol",
                 '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
-                70 AS "sort_order", 'Y' AS "is_header"
+                72 AS "sort_order", 'Y' AS "is_header"
             FROM q_calc
 
             UNION ALL
@@ -216,7 +216,7 @@ BEGIN
                 'Total PPOP'              AS "column_name",
                 TO_CHAR("total_ppop")     AS "maximum_cost",
                 'As-Is'                   AS "intervension",
-                71                        AS "sort_order",
+                73                        AS "sort_order",
                 'Y'                       AS "is_header"
             FROM q_calc
 
@@ -224,7 +224,14 @@ BEGIN
 
             SELECT "kode_cabang", "kode_konsol",
                 '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
-                72 AS "sort_order", 'Y' AS "is_header"
+                74 AS "sort_order", 'Y' AS "is_header"
+            FROM q_calc
+
+            UNION ALL
+
+            SELECT "kode_cabang", "kode_konsol",
+                '---' AS "column_name", 'N/A' AS "maximum_cost", 'N/A' AS "intervension",
+                75 AS "sort_order", 'Y' AS "is_header"
             FROM q_calc
         )
         SELECT

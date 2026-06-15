@@ -25,13 +25,29 @@ BEGIN
 
     apex_json.open_object;
     SELECT
-        COUNT(DISTINCT "kode_konsol")       AS jml_konsol,
-        COUNT(DISTINCT "kode_cabang_akhir") AS tot_cabang,
+        -- Jumlah konsol
         COUNT(DISTINCT CASE
-            WHEN "kode_konsol" = NVL(l_kc, "kode_konsol") 
-             AND "kode_cabang_akhir" = NVL(l_cabang,  "kode_cabang_akhir")
-            THEN "kode_cabang_akhir"
-        END)                                AS jml_cabang
+            WHEN "kode_konsol" NOT IN ('0', '900')
+            THEN "kode_konsol"
+        END) AS jml_konsol,
+
+        -- Total cabang (distinct kombinasi 4 kolom, filter ketat)
+        COUNT(DISTINCT CASE
+            WHEN substr("kode_cabang_awal", 1, 1) NOT IN ('0', '9')
+             AND "kode_cabang_awal" NOT IN ('700', '100', '798', '420', '799')
+            THEN "kode_cabang_akhir" || '|~|' || "nama_kantor_akhir"
+              || '|~|' || "kode_konsol"  || '|~|' || "nama_konsol"
+        END) AS tot_cabang,
+
+        -- Jumlah cabang dengan filter opsional (bind variable APEX)
+        COUNT(DISTINCT CASE
+            WHEN substr("kode_cabang_awal", 1, 1) NOT IN ('0', '9')
+             AND "kode_cabang_awal" NOT IN ('700', '100', '798', '420', '799')
+             AND "kode_konsol"       = NVL(l_kc,     "kode_konsol")
+             AND "kode_cabang_akhir" = NVL(l_cabang, "kode_cabang_akhir")
+            THEN "kode_cabang_akhir" || '|~|' || "nama_kantor_akhir"
+              || '|~|' || "kode_konsol"  || '|~|' || "nama_konsol"
+        END) AS jml_cabang
     INTO
         l_jml_konsol,
         l_tot_cabang,

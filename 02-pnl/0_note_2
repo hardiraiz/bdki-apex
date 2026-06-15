@@ -1,3 +1,9 @@
+[UAT NOTE]
+- Total Cabang Konsolidasi salah yang tampil 26 harusnya 24
+- 
+
+
+
 <!-- List Object tidak valid -->
 BJKT_PNL_FEE_BASED_INCOME_MV -> error konversi (DONE)
 BJKT_PNL_NII_POST_FTP_MV -> dijadikan sub query saja bukan jadi materialized view

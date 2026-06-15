@@ -272,7 +272,7 @@ BEGIN
                 46 + n.rn      AS "sort_order",
                 'N'            AS "is_header"
             FROM q_calc
-            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 15) n
+            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 17) n
 
             UNION ALL
 
@@ -282,7 +282,7 @@ BEGIN
                 'Optimasi Total'                                        AS "column_name",
                 TO_CHAR("optimasi_total")                               AS "maximum_cost",
                 'Max headcount'                                         AS "intervension",
-                62                                                      AS "sort_order",
+                64                                                      AS "sort_order",
                 'Y'                                                     AS "is_header"
             FROM q_calc
 
@@ -294,7 +294,7 @@ BEGIN
                 'Optimasi Manpower'                                     AS "column_name",
                 TO_CHAR("optimasi_total" - "non_manpower_total")        AS "maximum_cost",
                 'As-Is'                                                 AS "intervension",
-                63                                                      AS "sort_order",
+                65                                                      AS "sort_order",
                 'N'                                                     AS "is_header"
             FROM q_calc
 
@@ -304,7 +304,7 @@ BEGIN
                 'IT & Telecommunication'    AS "column_name",
                 TO_CHAR("dir_opex_telecom") AS "maximum_cost",
                 'As-Is'                     AS "intervension",
-                64                          AS "sort_order",
+                66                          AS "sort_order",
                 'N'                         AS "is_header"
             FROM q_calc
 
@@ -314,7 +314,7 @@ BEGIN
                 'Office Supplies'           AS "column_name",
                 TO_CHAR("dir_opex_ofc_sup") AS "maximum_cost",
                 'As-Is'                     AS "intervension",
-                65                          AS "sort_order",
+                67                          AS "sort_order",
                 'N'                         AS "is_header"
             FROM q_calc
 
@@ -324,7 +324,7 @@ BEGIN
                 'Sewa'                      AS "column_name",
                 TO_CHAR("dir_opex_sewa")    AS "maximum_cost",
                 'As-Is'                     AS "intervension",
-                66                          AS "sort_order",
+                68                          AS "sort_order",
                 'N'                         AS "is_header"
             FROM q_calc
 
@@ -334,7 +334,7 @@ BEGIN
                 'Perjalanan Dinas'           AS "column_name",
                 TO_CHAR("dir_opex_per_din")  AS "maximum_cost",
                 'As-Is'                      AS "intervension",
-                67                           AS "sort_order",
+                69                           AS "sort_order",
                 'N'                          AS "is_header"
             FROM q_calc
 
@@ -344,7 +344,7 @@ BEGIN
                 'Premi Asuransi Non-Kredit'      AS "column_name",
                 TO_CHAR("dir_opex_prem_ins_ncr") AS "maximum_cost",
                 'As-Is'                          AS "intervension",
-                68                               AS "sort_order",
+                70                               AS "sort_order",
                 'N'                              AS "is_header"
             FROM q_calc
 
@@ -354,7 +354,7 @@ BEGIN
                 'Premi Asuransi Kredit'         AS "column_name",
                 TO_CHAR("dir_opex_prem_as_cr")  AS "maximum_cost",
                 'As-Is'                         AS "intervension",
-                69                              AS "sort_order",
+                71                              AS "sort_order",
                 'N'                             AS "is_header"
             FROM q_calc
 
@@ -364,7 +364,7 @@ BEGIN
                 'Transaksi Kredit'          AS "column_name",
                 TO_CHAR("dir_opex_tran_cr") AS "maximum_cost",
                 'As-Is'                     AS "intervension",
-                70                          AS "sort_order",
+                72                          AS "sort_order",
                 'N'                         AS "is_header"
             FROM q_calc
 
@@ -374,7 +374,7 @@ BEGIN
                 'Transaksi Non-Kredit'       AS "column_name",
                 TO_CHAR("dir_opex_tran_ncr") AS "maximum_cost",
                 'As-Is'                      AS "intervension",
-                71                           AS "sort_order",
+                73                           AS "sort_order",
                 'N'                          AS "is_header"
             FROM q_calc
 
@@ -384,10 +384,10 @@ BEGIN
                 '---'          AS "column_name",
                 'N/A'          AS "maximum_cost",
                 'N/A'          AS "intervension",
-                71 + n.rn      AS "sort_order",
+                73 + n.rn      AS "sort_order",
                 'Y'            AS "is_header"
             FROM q_calc
-            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3) n
+            CROSS JOIN (SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4) n
         )
         SELECT
             "maximum_cost" as maximum_cost,

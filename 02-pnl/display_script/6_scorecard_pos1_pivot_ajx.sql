@@ -444,7 +444,7 @@ BEGIN
                 'N'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
-                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 15
+                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 17
             ) n
 
             UNION ALL
@@ -454,7 +454,7 @@ BEGIN
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                62              AS "sort_order",
+                64              AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result
 
@@ -465,7 +465,7 @@ BEGIN
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                62 + n.rn       AS "sort_order",
+                64 + n.rn       AS "sort_order",
                 'N'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
@@ -479,11 +479,11 @@ BEGIN
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                72 + n.rn       AS "sort_order",
+                74 + n.rn       AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
-                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3
+                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4
             ) n
         )
         SELECT
