@@ -19,6 +19,12 @@ BEGIN
 
     FOR r IN (
         WITH
+        cbg AS (
+            SELECT "kode_cabang_akhir" AS "kode_cabang", "kode_konsol"
+            FROM BJKT_BRANCHES_MV
+            WHERE "kode_konsol" = l_kc AND "kode_cabang_akhir" = l_cabang
+            GROUP BY "kode_cabang_akhir", "kode_konsol"
+        ),
         bbt AS (
             SELECT
                 "kode_cabang",
@@ -104,12 +110,13 @@ BEGIN
                     NVL(fbi."fbi_total",         0) +
                     NVL(opx."dir_opex_total",    0)
                 )) AS "total_ppop"
-            FROM pbt
-            LEFT JOIN bbt ON bbt."kode_cabang" = pbt."kode_cabang" AND bbt."kode_konsol" = pbt."kode_konsol"
-            LEFT JOIN fc  ON fc."kode_cabang"  = pbt."kode_cabang" AND fc."kode_konsol"  = pbt."kode_konsol"
-            LEFT JOIN fi  ON fi."kode_cabang"  = pbt."kode_cabang" AND fi."kode_konsol"  = pbt."kode_konsol"
-            LEFT JOIN fbi ON fbi."kode_cabang" = pbt."kode_cabang" AND fbi."kode_konsol" = pbt."kode_konsol"
-            LEFT JOIN opx ON opx."kode_cabang" = pbt."kode_cabang" AND opx."kode_konsol" = pbt."kode_konsol"
+            FROM cbg 
+            LEFT JOIN pbt ON pbt."kode_cabang" = cbg."kode_cabang" AND pbt."kode_konsol" = cbg."kode_konsol"
+            LEFT JOIN bbt ON bbt."kode_cabang" = cbg."kode_cabang" AND bbt."kode_konsol" = cbg."kode_konsol"
+            LEFT JOIN fc  ON fc."kode_cabang"  = cbg."kode_cabang" AND fc."kode_konsol"  = cbg."kode_konsol"
+            LEFT JOIN fi  ON fi."kode_cabang"  = cbg."kode_cabang" AND fi."kode_konsol"  = cbg."kode_konsol"
+            LEFT JOIN fbi ON fbi."kode_cabang" = cbg."kode_cabang" AND fbi."kode_konsol" = cbg."kode_konsol"
+            LEFT JOIN opx ON opx."kode_cabang" = cbg."kode_cabang" AND opx."kode_konsol" = cbg."kode_konsol"
         ),
         q_rows AS (
             SELECT "kode_cabang", "kode_konsol",

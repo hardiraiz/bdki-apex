@@ -72,26 +72,27 @@ BEGIN
             SELECT 'FBI_SINDIKASI',               'Sindikasi',                                    8, 'N', 'N', 57 FROM DUAL UNION ALL
             SELECT 'FBI_TRADE_FINANCE',           'Trade Finance',                                8, 'N', 'N', 58 FROM DUAL UNION ALL
             SELECT 'FBI_BANK_GARANSI',            'Bank Garansi',                                 8, 'N', 'N', 59 FROM DUAL UNION ALL
-            SELECT 'FBI_KER_PIHAK_LAIN',          'Kerjasama Pihak Lain (komisi agen, asuransi)', 8, 'N', 'N', 60 FROM DUAL UNION ALL
-            SELECT 'FBI_LAINNYA',                 'Lainnya (komisi notaris, denda tunggakan)',    8, 'N', 'N', 61 FROM DUAL UNION ALL
-            SELECT 'OPEX_TOTAL',                  'Direct OPEX',                               9, 'Y', 'N', 62 FROM DUAL UNION ALL
-            SELECT 'OPEX_MANPOWER',               'Manpower',                                  9, 'N', 'N', 63 FROM DUAL UNION ALL
-            SELECT 'OPEX_TELECOM',                'IT & Telecommunication',                    9, 'N', 'N', 64 FROM DUAL UNION ALL
-            SELECT 'OPEX_OFFICE_SUPPLIES',        'Office Supplies',                           9, 'N', 'N', 65 FROM DUAL UNION ALL
-            SELECT 'OPEX_PERJALANAN_DINAS',       'Perjalanan Dinas',                          9, 'N', 'N', 66 FROM DUAL UNION ALL
-            SELECT 'OPEX_SEWA',                   'Sewa (ATM, kendaraan, bangunan, dll.)',     9, 'N', 'N', 67 FROM DUAL UNION ALL
-            SELECT 'OPEX_PREM_INS_NCR',           'Premium Insurance Non-Credit',              9, 'N', 'N', 68 FROM DUAL UNION ALL
-            SELECT 'OPEX_PREM_AS_CR',             'Premi Asuransi Kredit',                     9, 'N', 'N', 69 FROM DUAL UNION ALL
-            SELECT 'OPEX_TRAN_CR',                'Transaksi Kredit',                          9, 'N', 'N', 70 FROM DUAL UNION ALL
-            SELECT 'OPEX_TRAN_NCR',               'Transaksi Non Kredit',                      9, 'N', 'N', 71 FROM DUAL UNION ALL
-            SELECT 'PPOP_TOTAL',                  'PPOP (Dir OPEX)',                           10, 'Y', 'N', 72 FROM DUAL UNION ALL
-            SELECT 'CKPN_RETAIL',                 'Beban CKPN (Retail. Only)',                 11, 'Y', 'N', 73 FROM DUAL UNION ALL
-            SELECT 'CKPN_TOTAL',                  'Beban CKPN (Total)',                        12, 'Y', 'N', 74 FROM DUAL UNION ALL
-            SELECT 'PBT_NOMINAL',                 'PBT (Dir OPEX + Retail CKPN)',              13, 'Y', 'N', 75 FROM DUAL
+            SELECT 'FBI_ADMIN_KREDIT',            'Admin Kredit',                                 8, 'N', 'N', 60 FROM DUAL UNION ALL
+            SELECT 'FBI_KER_PIHAK_LAIN',          'Kerjasama Pihak Lain (komisi agen, asuransi)', 8, 'N', 'N', 61 FROM DUAL UNION ALL
+            SELECT 'FBI_M2M_FRX_SB',              'M2M Forex & SB',                               8, 'N', 'N', 62 FROM DUAL UNION ALL
+            SELECT 'FBI_LAINNYA',                 'Lainnya (komisi notaris, denda tunggakan)',    8, 'N', 'N', 63 FROM DUAL UNION ALL
+            SELECT 'OPEX_TOTAL',                  'Direct OPEX',                               9, 'Y', 'N', 64 FROM DUAL UNION ALL
+            SELECT 'OPEX_MANPOWER',               'Manpower',                                  9, 'N', 'N', 65 FROM DUAL UNION ALL
+            SELECT 'OPEX_TELECOM',                'IT & Telecommunication',                    9, 'N', 'N', 66 FROM DUAL UNION ALL
+            SELECT 'OPEX_OFFICE_SUPPLIES',        'Office Supplies',                           9, 'N', 'N', 67 FROM DUAL UNION ALL
+            SELECT 'OPEX_SEWA',                   'Sewa (ATM, kendaraan, bangunan, dll.)',     9, 'N', 'N', 68 FROM DUAL UNION ALL
+            SELECT 'OPEX_PERJALANAN_DINAS',       'Perjalanan Dinas',                          9, 'N', 'N', 69 FROM DUAL UNION ALL
+            SELECT 'OPEX_PREM_INS_NCR',           'Premium Insurance Non-Credit',              9, 'N', 'N', 70 FROM DUAL UNION ALL
+            SELECT 'OPEX_PREM_AS_CR',             'Premi Asuransi Kredit',                     9, 'N', 'N', 71 FROM DUAL UNION ALL
+            SELECT 'OPEX_TRAN_CR',                'Transaksi Kredit',                          9, 'N', 'N', 72 FROM DUAL UNION ALL
+            SELECT 'OPEX_TRAN_NCR',               'Transaksi Non Kredit',                      9, 'N', 'N', 73 FROM DUAL UNION ALL
+            SELECT 'PPOP_TOTAL',                  'PPOP (Dir OPEX)',                           10, 'Y', 'N', 74 FROM DUAL UNION ALL
+            SELECT 'CKPN_RETAIL',                 'Beban CKPN (Retail. Only)',                 11, 'Y', 'N', 75 FROM DUAL UNION ALL
+            SELECT 'CKPN_TOTAL',                  'Beban CKPN (Total)',                        12, 'Y', 'N', 76 FROM DUAL UNION ALL
+            SELECT 'PBT_NOMINAL',                 'PBT (Dir OPEX + Retail CKPN)',              13, 'Y', 'N', 77 FROM DUAL
         ),
         cre AS (
-            SELECT
-                "kode_cabang",
+            SELECT "kode_cabang",
                 MAX("nama_cabang") AS "nama_cabang", MAX("kode_konsol") AS "kode_konsol",
                 MAX("nama_konsol") AS "nama_konsol", SUM("total_kredit") AS "total_kredit",
                 SUM("kredit_total_konven") AS "kredit_total_konven", SUM("kredit_konven_kmg") AS "kredit_konven_kmg",
@@ -104,8 +105,7 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         dpk AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
+            SELECT "kode_cabang", "kode_konsol",
                 SUM("total_dpk") AS "total_dpk", SUM("dpk_total_konven") AS "dpk_total_konven",
                 SUM("dpk_konven_giro") AS "dpk_konven_giro", SUM("dpk_konven_tabungan")  AS "dpk_konven_tabungan",
                 SUM("dpk_konven_deposito") AS "dpk_konven_deposito", SUM("dpk_total_syariah") AS "dpk_total_syariah",
@@ -115,8 +115,7 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         pbt AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
+            SELECT "kode_cabang", "kode_konsol",
                 SUM("total_pen_bunga") AS "total_pen_bunga", SUM("total_bunga_konven") AS "total_bunga_konven", SUM("bunga_konven_kmg") AS "bunga_konven_kmg",
                 SUM("bunga_konven_kpr") AS "bunga_konven_kpr", SUM("bunga_konven_mikro") AS "bunga_konven_mikro",
                 SUM("bunga_konven_ukm") AS "bunga_konven_ukm", SUM("total_bunga_syariah") AS "total_bunga_syariah",
@@ -127,8 +126,7 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         bbt AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
+            SELECT "kode_cabang", "kode_konsol",
                 SUM("total_beban_bunga") AS "total_beban_bunga", SUM("beban_bunga_konven") AS "beban_bunga_konven",
                 SUM("beban_bunga_konven_giro") AS "beban_bunga_konven_giro", SUM("beban_bunga_konven_tabungan")  AS "beban_bunga_konven_tabungan",
                 SUM("beban_bunga_konven_deposito") AS "beban_bunga_konven_deposito", SUM("beban_bunga_total_syariah") AS "beban_bunga_total_syariah",
@@ -139,30 +137,19 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         fi AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
-                SUM("ftp_income_dpk") AS "ftp_income_dpk"
+            SELECT "kode_cabang", "kode_konsol", SUM("ftp_income_dpk") AS "ftp_income_dpk"
             FROM BJKT_PNL_FTP_INCOME_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" < l_to_date
-            AND "kode_konsol" = l_kc
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" < l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         fc AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
-                SUM("ftp_charge_loan") AS "ftp_charge_loan"
+            SELECT "kode_cabang", "kode_konsol", SUM("ftp_charge_loan") AS "ftp_charge_loan"
             FROM BJKT_PNL_FTP_CHARGE_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" < l_to_date
-            AND "kode_konsol" = l_kc
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" < l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         fbi AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
+            SELECT "kode_cabang", "kode_konsol",
                 SUM("fbi_total")             AS "fbi_total",
                 SUM("fbi_acc_maint")         AS "fbi_acc_maint",
                 SUM("fbi_atm")               AS "fbi_atm",
@@ -179,17 +166,14 @@ BEGIN
                 SUM("fbi_bank_garansi")      AS "fbi_bank_garansi",
                 SUM("fbi_admin_kredit")      AS "fbi_admin_kredit",
                 SUM("fbi_ker_pihak_lain")    AS "fbi_ker_pihak_lain",
+                SUM("fbi_m2m_frx_sb")        AS "fbi_m2m_frx_sb",
                 SUM("fbi_lainnya")           AS "fbi_lainnya"
             FROM BJKT_PNL_FEE_BASED_INCOME_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" < l_to_date
-            AND "kode_konsol" = l_kc 
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" < l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         opx AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
+            SELECT "kode_cabang", "kode_konsol",
                 SUM("dir_opex_total")        AS "dir_opex_total",
                 SUM("dir_opex_manpower")     AS "dir_opex_manpower",
                 SUM("dir_opex_telecom")      AS "dir_opex_telecom",
@@ -201,33 +185,19 @@ BEGIN
                 SUM("dir_opex_tran_cr")      AS "dir_opex_tran_cr",
                 SUM("dir_opex_tran_ncr")     AS "dir_opex_tran_ncr"
             FROM BJKT_PNL_DIRECT_OPEX_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" < l_to_date
-            AND "kode_konsol" = l_kc
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" < l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         ckpn AS (
-            SELECT
-                "kode_cabang", "kode_konsol",
-                SUM("ckpn_nominal") AS "ckpn_nominal"
+            SELECT "kode_cabang", "kode_konsol", SUM("ckpn_nominal") AS "ckpn_nominal"
             FROM BJKT_PNL_BEBAN_CKPN_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" < l_to_date
-            AND "kode_konsol" = l_kc
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" < l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         ckpn_tot AS (
-            SELECT
-                "kode_cabang",
-                "kode_konsol",
-                SUM("ckpn_nominal") AS "ckpn_nominal"
+            SELECT "kode_cabang", "kode_konsol", SUM("ckpn_nominal") AS "ckpn_nominal"
             FROM BJKT_PNL_BEBAN_CKPN_TOT_MV
-            WHERE "periode" >= l_from_date
-            AND "periode" <  l_to_date
-            AND "kode_konsol" = l_kc
-            AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
+            WHERE "periode" >= l_from_date AND "periode" <  l_to_date AND "kode_konsol" = l_kc AND "kode_cabang" = NVL(l_cabang, "kode_cabang")
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         q_base AS (
@@ -244,7 +214,6 @@ BEGIN
                 ROUND(cre."kredit_syariah_kpr")     AS "kredit_syariah_kpr",
                 ROUND(cre."kredit_syariah_mikro")   AS "kredit_syariah_mikro",
                 ROUND(cre."kredit_syariah_ukm")     AS "kredit_syariah_ukm",
-
                 ROUND(dpk."total_dpk")              AS "total_dpk",
                 ROUND(dpk."dpk_total_konven")       AS "dpk_total_konven",
                 ROUND(dpk."dpk_konven_giro")        AS "dpk_konven_giro",
@@ -254,7 +223,6 @@ BEGIN
                 ROUND(dpk."dpk_syariah_giro")       AS "dpk_syariah_giro",
                 ROUND(dpk."dpk_syariah_tabungan")   AS "dpk_syariah_tabungan",
                 ROUND(dpk."dpk_syariah_deposito")   AS "dpk_syariah_deposito",
-
                 ROUND(pbt."total_pen_bunga")        AS "total_pen_bunga",
                 ROUND(pbt."total_bunga_konven")     AS "total_bunga_konven",
                 ROUND(pbt."bunga_konven_kmg")       AS "bunga_konven_kmg",
@@ -266,7 +234,6 @@ BEGIN
                 ROUND(pbt."bunga_syariah_kpr")      AS "bunga_syariah_kpr",
                 ROUND(pbt."bunga_syariah_mikro")    AS "bunga_syariah_mikro",
                 ROUND(pbt."bunga_syariah_ukm")      AS "bunga_syariah_ukm",
-
                 ROUND(bbt."total_beban_bunga")              AS "total_beban_bunga",
                 ROUND(bbt."beban_bunga_konven")             AS "beban_bunga_konven",
                 ROUND(bbt."beban_bunga_konven_giro")        AS "beban_bunga_konven_giro",
@@ -276,15 +243,12 @@ BEGIN
                 ROUND(bbt."beban_bunga_syariah_giro")       AS "beban_bunga_syariah_giro",
                 ROUND(bbt."beban_bunga_syariah_tabungan")   AS "beban_bunga_syariah_tabungan",
                 ROUND(bbt."beban_bunga_syariah_deposito")   AS "beban_bunga_syariah_deposito",
-
                 ROUND(fi."ftp_income_dpk")          AS "ftp_income_dpk",
                 ROUND(fc."ftp_charge_loan")         AS "ftp_charge_loan",
-
                 ROUND(
                     NVL(bbt."total_beban_bunga", 0) + NVL(pbt."total_pen_bunga", 0)
                     + NVL(fc."ftp_charge_loan", 0)  + NVL(fi."ftp_income_dpk", 0)
                 ) AS "nii_post_ftp",
-
                 ROUND(fbi."fbi_total")              AS "fbi_total",
                 ROUND(fbi."fbi_acc_maint")          AS "fbi_acc_maint",
                 ROUND(fbi."fbi_atm")                AS "fbi_atm",
@@ -303,8 +267,8 @@ BEGIN
                 ROUND(fbi."fbi_bank_garansi")       AS "fbi_bank_garansi",
                 ROUND(fbi."fbi_admin_kredit")       AS "fbi_admin_kredit",
                 ROUND(fbi."fbi_ker_pihak_lain")     AS "fbi_ker_pihak_lain",
+                ROUND(fbi."fbi_m2m_frx_sb")         AS "fbi_m2m_frx_sb",
                 ROUND(fbi."fbi_lainnya")            AS "fbi_lainnya",
-
                 ROUND(opx."dir_opex_total")         AS "dir_opex_total",
                 ROUND(opx."dir_opex_manpower")      AS "dir_opex_manpower",
                 ROUND(opx."dir_opex_telecom")       AS "dir_opex_telecom",
@@ -315,16 +279,13 @@ BEGIN
                 ROUND(opx."dir_opex_prem_as_cr")    AS "dir_opex_prem_as_cr",
                 ROUND(opx."dir_opex_tran_cr")       AS "dir_opex_tran_cr",
                 ROUND(opx."dir_opex_tran_ncr")      AS "dir_opex_tran_ncr",
-
                 ROUND(
                     (NVL(bbt."total_beban_bunga",0) + NVL(pbt."total_pen_bunga",0)
                     + NVL(fc."ftp_charge_loan",0) + NVL(fi."ftp_income_dpk",0))
                     + NVL(fbi."fbi_total",0) + NVL(opx."dir_opex_total",0)
                 ) AS "ppop_total",
-
                 ROUND(ckpn."ckpn_nominal")          AS "ckpn_nominal",
                 ROUND(ckpn_tot."ckpn_nominal")      AS "ckpn_tot",
-
                 ROUND(
                     (NVL(bbt."total_beban_bunga",0) + NVL(pbt."total_pen_bunga",0)
                     + NVL(fc."ftp_charge_loan",0) + NVL(fi."ftp_income_dpk",0))
@@ -344,11 +305,7 @@ BEGIN
                 LEFT JOIN ckpn_tot ON cre."kode_cabang" = ckpn_tot."kode_cabang"
         )
         SELECT
-            u."nominal"         AS nominal,
-            m."column_desc"     AS column_name,
-            m."group_number"    AS group_number,
-            m."is_header"       AS is_header,
-            m."is_lines"        AS is_lines
+            u."nominal" AS nominal, m."column_desc" AS column_name, m."group_number" AS group_number, m."is_header" AS is_header, m."is_lines" AS is_lines
         FROM (
             SELECT "kode_cabang", "nama_cabang", "kode_konsol", "nama_konsol", "column_name", "nominal"
             FROM q_base
@@ -415,6 +372,7 @@ BEGIN
                     "fbi_bank_garansi"              AS 'FBI_BANK_GARANSI',
                     "fbi_admin_kredit"              AS 'FBI_ADMIN_KREDIT',
                     "fbi_ker_pihak_lain"            AS 'FBI_KER_PIHAK_LAIN',
+                    "fbi_m2m_frx_sb"                AS 'FBI_M2M_FRX_SB',
                     "fbi_lainnya"                   AS 'FBI_LAINNYA',
                     "dir_opex_total"                AS 'OPEX_TOTAL',
                     "dir_opex_manpower"             AS 'OPEX_MANPOWER',

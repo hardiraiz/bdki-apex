@@ -8,7 +8,8 @@ where "table_schema" = 'dwh'
 select *
   from "information_schema"."columns"@DWH
  where 1 = 1
-   and "table_name" = 'dim_branch_v2';
+   and "table_schema" = 'pnl'
+   and "table_name" = 'pnl_ckpn';
 /
 select "periode",
        "kode_konsol",
@@ -51,7 +52,12 @@ SELECT * FROM "dwh"."pnl_fbi"@DWH where "kode_cabang_akhir" = '108';
 SELECT * FROM "dwh"."dim_branch_v2"@DWH;
 SELECT * FROM "dwh"."pnl_gl_v2"@DWH;
 SELECT * FROM "dwh"."pnl_ckpn"@DWH;
-SELECT * FROM "dwh"."pnl_opex_v2"@DWH;
+
+SELECT SUM("nom") FROM "dwh"."pnl_opex_v2"@DWH
+WHERE "ket_final" = 'Manpower' AND "kode_cabang_akhir" = '726';
+
+
+
 SELECT * FROM "dwh"."pnl_direct_porsi"@DWH;
 SELECT * FROM "public"."pnl_direct_cabang"@DWH;
 /
@@ -133,7 +139,7 @@ SELECT * FROM BJKT_PNL_BEBAN_BUNGA_TOTAL_MV;
 SELECT * FROM BJKT_PNL_FTP_INCOME_MV;
 SELECT * FROM BJKT_PNL_FEE_BASED_INCOME_MV WHERE "kode_cabang" = '108';
 SELECT * FROM BJKT_PNL_NII_POST_FTP_MV;
-SELECT * FROM BJKT_PNL_DIRECT_OPEX_MV WHERE "kode_cabang" = '108';
+SELECT * FROM BJKT_PNL_DIRECT_OPEX_MV WHERE "kode_cabang" = '726';
 SELECT * FROM BJKT_PNL_BEBAN_CKPN_MV WHERE "kode_cabang" = '108';
 /
 
@@ -455,12 +461,18 @@ WHERE
 /
 
 -- Minimum Portofolio 1
+-- =IFERROR(F7*ABS(F11)/(F7*((C25+C55)/C15)+(1-F7)*((C45+C54)/C37)),0)
+-- (KREDIT_OF_PORTOFOLIO*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_KONVEN) + (1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_KONVEN)), 0)
+-- (7%*1537)/(7%*((8303+(-4.164))/969284) + (1-7%)*((-40463+59938)/14062793)))
+-- (0.07*1537)/(0.07*((8303+(-4.164))/969284) + (1-0.07)*((-40463+59938)/14062793)))
+
 -- IFERROR((1-F7)*ABS(F11)/(F7*((C25+C55)/C15) + (1-F7)*((C45+C54)/C37)),0)
 -- (1-KREDIT_OF_PORTOFOLIO)*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/DPK_KONVEN) + (1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_KONVEN))
+-- (1-7%)*1537/(7%*((8303+(-4164))/14062793) + (1-7%)*((-40463+59938)/14062793))
+
 -- (1-KREDIT_OF_PORTOFOLIO)*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/DPK_KONVEN) + (1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_SYARIAH))
 
 -- IFERROR(E6*ABS(E10)/(E6*((B29+B36)/B10) + (1-E6)*((B32+B35)/B21)),0)
--- (KREDIT_OF_PORTOFOLIO*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_KONVEN) + (1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_KONVEN)), 0)
 WITH
 q_minimum_nii AS (
     SELECT

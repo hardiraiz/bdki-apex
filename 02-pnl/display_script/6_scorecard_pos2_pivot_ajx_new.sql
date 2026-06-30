@@ -19,6 +19,12 @@ BEGIN
 
     FOR r IN (
         WITH
+        cbg AS (
+            SELECT "kode_cabang_akhir" AS "kode_cabang", "kode_konsol"
+            FROM BJKT_BRANCHES_MV
+            WHERE "kode_konsol" = l_kc AND "kode_cabang_akhir" = l_cabang
+            GROUP BY "kode_cabang_akhir", "kode_konsol"
+        ),
         fbi AS (
             SELECT
                 "kode_cabang",
@@ -151,13 +157,14 @@ BEGIN
                 ROUND(opx."dir_opex_tran_cr")       AS "dir_opex_tran_cr",
                 ROUND(opx."dir_opex_tran_ncr")      AS "dir_opex_tran_ncr"
 
-            FROM opx
-            LEFT JOIN fbi  ON fbi."kode_konsol"  = opx."kode_konsol" AND fbi."kode_cabang"  = opx."kode_cabang"
-            LEFT JOIN bbt  ON bbt."kode_konsol"  = opx."kode_konsol" AND bbt."kode_cabang"  = opx."kode_cabang"
-            LEFT JOIN pbt  ON pbt."kode_konsol"  = opx."kode_konsol" AND pbt."kode_cabang"  = opx."kode_cabang"
-            LEFT JOIN fi   ON fi."kode_konsol"   = opx."kode_konsol" AND fi."kode_cabang"   = opx."kode_cabang"
-            LEFT JOIN fc   ON fc."kode_konsol"   = opx."kode_konsol" AND fc."kode_cabang"   = opx."kode_cabang"
-            LEFT JOIN ckpn ON ckpn."kode_konsol" = opx."kode_konsol" AND ckpn."kode_cabang" = opx."kode_cabang"
+            FROM cbg
+            LEFT JOIN opx  ON opx."kode_konsol"  = cbg."kode_konsol" AND opx."kode_cabang"  = cbg."kode_cabang"
+            LEFT JOIN fbi  ON fbi."kode_konsol"  = cbg."kode_konsol" AND fbi."kode_cabang"  = cbg."kode_cabang"
+            LEFT JOIN bbt  ON bbt."kode_konsol"  = cbg."kode_konsol" AND bbt."kode_cabang"  = cbg."kode_cabang"
+            LEFT JOIN pbt  ON pbt."kode_konsol"  = cbg."kode_konsol" AND pbt."kode_cabang"  = cbg."kode_cabang"
+            LEFT JOIN fi   ON fi."kode_konsol"   = cbg."kode_konsol" AND fi."kode_cabang"   = cbg."kode_cabang"
+            LEFT JOIN fc   ON fc."kode_konsol"   = cbg."kode_konsol" AND fc."kode_cabang"   = cbg."kode_cabang"
+            LEFT JOIN ckpn ON ckpn."kode_konsol" = cbg."kode_konsol" AND ckpn."kode_cabang" = cbg."kode_cabang"
         ),
         q_rows AS (
             -- Blok 1: Header sort 1

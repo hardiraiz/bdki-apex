@@ -1,235 +1,227 @@
-WITH
-cre AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        MAX("nama_cabang")          AS "nama_cabang",
-        MAX("nama_konsol")          AS "nama_konsol",
-        SUM("total_kredit")         AS "total_kredit",
-        SUM("kredit_total_konven")  AS "kredit_total_konven",
-        SUM("kredit_total_syariah") AS "kredit_total_syariah"
-    FROM BJKT_PNL_AVG_BAL_CREDIT_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-dpk AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("total_dpk")         AS "total_dpk",
-        SUM("dpk_total_konven")  AS "dpk_total_konven",
-        SUM("dpk_total_syariah") AS "dpk_total_syariah"
-    FROM BJKT_PNL_AVG_BAL_DPK_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-pbt AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("total_pen_bunga") AS "total_pen_bunga"
-    FROM BJKT_PNL_PEN_BUNGA_TOTAL_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-bbt AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("total_beban_bunga") AS "total_beban_bunga"
-    FROM BJKT_PNL_BEBAN_BUNGA_TOTAL_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-fi AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("ftp_income_dpk") AS "ftp_income_dpk"
-    FROM BJKT_PNL_FTP_INCOME_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-fc AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("ftp_charge_loan") AS "ftp_charge_loan"
-    FROM BJKT_PNL_FTP_CHARGE_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-fbi AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("fbi_total") AS "fbi_total"
-    FROM BJKT_PNL_FEE_BASED_INCOME_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-opx AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("dir_opex_total") AS "dir_opex_total"
-    FROM BJKT_PNL_DIRECT_OPEX_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-ckpn AS (
-    SELECT
-        "kode_cabang",
-        "kode_konsol",
-        SUM("ckpn_nominal") AS "ckpn_nominal"
-    FROM BJKT_PNL_BEBAN_CKPN_MV
-    WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
-      AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
-      AND "kode_konsol" = NVL(:P1000_KC,     "kode_konsol")
-      AND "kode_cabang" = NVL(:P1000_CABANG, "kode_cabang")
-    GROUP BY "kode_cabang", "kode_konsol"
-),
-        q_calc AS (
+        WITH
+        cbg AS (
+            SELECT "kode_cabang_akhir" AS "kode_cabang", "kode_konsol"
+            FROM BJKT_BRANCHES_MV
+            WHERE "kode_konsol" = :P1000_KC AND "kode_cabang_akhir" = :P1000_CABANG
+            GROUP BY "kode_cabang_akhir", "kode_konsol"
+        ),
+        pbt AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("total_pen_bunga")      AS "total_pen_bunga"
+            FROM BJKT_PNL_PEN_BUNGA_TOTAL_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        cre AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol"               AS "kode_konsol",
+                SUM("total_kredit")         AS "total_kredit",
+                SUM("kredit_total_konven")  AS "kredit_total_konven",
+                SUM("kredit_total_syariah") AS "kredit_total_syariah"
+            FROM BJKT_PNL_AVG_BAL_CREDIT_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        dpk AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("total_dpk")            AS "total_dpk",
+                SUM("dpk_total_konven")     AS "dpk_total_konven",
+                SUM("dpk_total_syariah")    AS "dpk_total_syariah"
+            FROM BJKT_PNL_AVG_BAL_DPK_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        bbt AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("total_beban_bunga")            AS "total_beban_bunga"
+            FROM BJKT_PNL_BEBAN_BUNGA_TOTAL_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        fi AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("ftp_income_dpk") AS "ftp_income_dpk"
+            FROM BJKT_PNL_FTP_INCOME_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        fc AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("ftp_charge_loan") AS "ftp_charge_loan"
+            FROM BJKT_PNL_FTP_CHARGE_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        fbi AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("fbi_total")             AS "fbi_total"
+            FROM BJKT_PNL_FEE_BASED_INCOME_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC 
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        opx AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("dir_opex_total")        AS "dir_opex_total"
+            FROM BJKT_PNL_DIRECT_OPEX_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC 
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        ckpn AS (
+            SELECT
+                "kode_cabang",
+                "kode_konsol",
+                SUM("ckpn_nominal") AS "ckpn_nominal"
+            FROM BJKT_PNL_BEBAN_CKPN_MV
+            WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
+            AND "periode" <  TO_DATE(:P1000_PERIOD_TO,   'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH') + 1
+            AND "kode_konsol" = :P1000_KC 
+            AND "kode_cabang" = :P1000_CABANG
+            GROUP BY "kode_cabang", "kode_konsol"
+        ),
+        cre_por AS (
             SELECT
                 cre."kode_cabang",
                 cre."kode_konsol",
+                NVL(cre."total_kredit", 0) / NULLIF((NVL(cre."total_kredit", 0) + NVL(dpk."total_dpk", 0)), 0)
+                    AS "cre_por_val"
+            FROM cre
+            LEFT JOIN dpk
+                ON  dpk."kode_cabang" = cre."kode_cabang"
+                AND dpk."kode_konsol" = cre."kode_konsol"
+        ),
+        min_nii AS (
+            SELECT
+                opx."kode_cabang",
+                opx."kode_konsol",
+                ABS(
+                    NVL((opx."dir_opex_total"), 0) +
+                    NVL((ckpn."ckpn_nominal"), 0) +
+                    NVL((fbi."fbi_total"), 0)
+                ) AS "min_nii_val"
+            FROM opx
+            LEFT JOIN fbi
+                ON  fbi."kode_cabang" = opx."kode_cabang"
+                AND fbi."kode_konsol" = opx."kode_konsol"
+            LEFT JOIN ckpn
+                ON  ckpn."kode_cabang" = opx."kode_cabang"
+                AND ckpn."kode_konsol" = opx."kode_konsol" 
+        ),
+        q_result AS (
+            SELECT
+                cbg."kode_cabang",
+                cbg."kode_konsol",
                 cre."kredit_total_konven",
                 cre."kredit_total_syariah",
                 dpk."dpk_total_konven",
                 dpk."dpk_total_syariah",
-                ROUND(
-                    NVL(cre."total_kredit", 0) /
-                    NULLIF(NVL(cre."total_kredit", 0) + NVL(dpk."total_dpk", 0), 0),
-                    3
-                ) AS "w_kredit",
-                (1 - ROUND(
-                    NVL(cre."total_kredit", 0) /
-                    NULLIF(NVL(cre."total_kredit", 0) + NVL(dpk."total_dpk", 0), 0),
-                    3
-                )) AS "w_dpk",
-                ABS(
-                    NVL(opx."dir_opex_total", 0) +
-                    NVL(ckpn."ckpn_nominal",  0) +
-                    NVL(fbi."fbi_total",      0)
-                ) AS "beban_total",
-                ( NVL(pbt."total_pen_bunga", 0) + NVL(fc."ftp_charge_loan", 0) )
-                    / NULLIF(cre."kredit_total_konven",  0)     AS "yield_konven",
-                ( NVL(pbt."total_pen_bunga", 0) + NVL(fc."ftp_charge_loan", 0) )
-                    / NULLIF(cre."kredit_total_syariah", 0)     AS "yield_syariah",
-                ( NVL(bbt."total_beban_bunga", 0) + NVL(fi."ftp_income_dpk", 0) )
-                    / NULLIF(dpk."dpk_total_konven",  0)        AS "cof_konven",
-                ( NVL(bbt."total_beban_bunga", 0) + NVL(fi."ftp_income_dpk", 0) )
-                    / NULLIF(dpk."dpk_total_syariah", 0)        AS "cof_syariah",
 
-                -- Yield kredit konven, tapi basis DPK konven (untuk rumus min DPK)
-                ( NVL(pbt."total_pen_bunga", 0) + NVL(fc."ftp_charge_loan", 0) )
-                    / NULLIF(dpk."dpk_total_konven", 0)  AS "yield_konven_dpk"
-                
-            FROM cre
-            LEFT JOIN dpk  ON cre."kode_cabang" = dpk."kode_cabang"  AND cre."kode_konsol" = dpk."kode_konsol"
-            LEFT JOIN pbt  ON cre."kode_cabang" = pbt."kode_cabang"  AND cre."kode_konsol" = pbt."kode_konsol"
-            LEFT JOIN bbt  ON cre."kode_cabang" = bbt."kode_cabang"  AND cre."kode_konsol" = bbt."kode_konsol"
-            LEFT JOIN fc   ON cre."kode_cabang" = fc."kode_cabang"   AND cre."kode_konsol" = fc."kode_konsol"
-            LEFT JOIN fi   ON cre."kode_cabang" = fi."kode_cabang"   AND cre."kode_konsol" = fi."kode_konsol"
-            LEFT JOIN fbi  ON cre."kode_cabang" = fbi."kode_cabang"  AND cre."kode_konsol" = fbi."kode_konsol"
-            LEFT JOIN opx  ON cre."kode_cabang" = opx."kode_cabang"  AND cre."kode_konsol" = opx."kode_konsol"
-            LEFT JOIN ckpn ON cre."kode_cabang" = ckpn."kode_cabang" AND cre."kode_konsol" = ckpn."kode_konsol"
-        ),
-        -- CTE kedua untuk menghitung min_port sekali, lalu gap & total referensi dari sini
-        q_result AS (
-            SELECT
-                "kode_cabang",
-                "kode_konsol",
-                "kredit_total_konven",
-                "kredit_total_syariah",
-                "dpk_total_konven",
-                "dpk_total_syariah",
+                NULLIF(ROUND(
+                    cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven"))
+                ), 0) AS "min_port_1",
 
-                -- Min AVG. Kredit Konven
-                NVL(
-                    "w_kredit" * "beban_total"
-                    / NULLIF("w_kredit" * "yield_konven" + (1 - "w_kredit") * "cof_konven", 0),
-                    0
-                ) AS "min_port_1",
+                NULLIF(ROUND (
+                    cre."kredit_total_konven" -
+                    (cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven")))
+                ), 0) AS "gap_kre_konven",
 
-                -- Min AVG. Kredit Syariah
-                NVL(
-                    "w_kredit" * "beban_total"
-                    / NULLIF("w_kredit" * "yield_syariah" + (1 - "w_kredit") * "cof_syariah", 0),
-                    0
-                ) AS "min_port_2",
+                NULLIF(ROUND(
+                    cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "min_port_2",
 
-                -- Minimum DPK 1 (konven)
-                NVL(
-                    (1 - "w_kredit") * "beban_total"
-                    / NULLIF(
-                        "w_kredit"       * ("yield_konven_dpk") +
-                        (1 - "w_kredit") * "cof_konven",
-                        0
-                    ),
-                    0
-                ) AS "min_dpk_1",
+                NULLIF(ROUND(
+                    cre."kredit_total_syariah" -
+                    (cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah")))
+                ), 0) AS "gap_kre_syariah",
 
-                -- Minimum DPK 2 (syariah)
-                NVL(
-                    (1 - "w_kredit") * "beban_total"
-                    / NULLIF(
-                        "w_kredit"       * ("yield_konven_dpk") +
-                        (1 - "w_kredit") * "cof_syariah",
-                        0
-                    ),
-                    0
-                ) AS "min_dpk_2"
-            FROM q_calc
+                NULLIF(ROUND(
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven"))
+                ), 0) AS "min_dpk_1",
+
+                NULLIF(ROUND(
+                    dpk."dpk_total_konven" -
+                    ((1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven")))
+                ), 0) AS "gap_dpk_konven",
+
+                NULLIF(ROUND(
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "min_dpk_2",
+
+                NULLIF(ROUND(
+                    dpk."dpk_total_syariah" -
+                    ((1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah")))
+                ), 0) AS "gap_dpk_syariah"
+
+            FROM cbg
+            LEFT JOIN cre     ON cbg."kode_cabang" = cre."kode_cabang"     AND cbg."kode_konsol" = cre."kode_konsol"
+            LEFT JOIN cre_por ON cbg."kode_cabang" = cre_por."kode_cabang" AND cbg."kode_konsol" = cre_por."kode_konsol"
+            LEFT JOIN min_nii ON cbg."kode_cabang" = min_nii."kode_cabang" AND cbg."kode_konsol" = min_nii."kode_konsol"
+            LEFT JOIN pbt     ON cbg."kode_cabang" = pbt."kode_cabang"     AND cbg."kode_konsol" = pbt."kode_konsol"
+            LEFT JOIN bbt     ON cbg."kode_cabang" = bbt."kode_cabang"     AND cbg."kode_konsol" = bbt."kode_konsol"
+            LEFT JOIN fi      ON cbg."kode_cabang" = fi."kode_cabang"      AND cbg."kode_konsol" = fi."kode_konsol"
+            LEFT JOIN fc      ON cbg."kode_cabang" = fc."kode_cabang"      AND cbg."kode_konsol" = fc."kode_konsol"
+            LEFT JOIN dpk     ON cbg."kode_cabang" = dpk."kode_cabang"     AND cbg."kode_konsol" = dpk."kode_konsol"
         ),
         q_rows AS (
-            -- Row total
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_TOTAL'     AS "column_name",
                 TO_CHAR(ROUND("min_port_1" + "min_port_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND(
-                    ("min_port_1" - NVL("kredit_total_konven",  0)) +
+                TO_CHAR(ROUND(
+                    (NVL("kredit_total_konven",  0)) +
                     ("min_port_2" - NVL("kredit_total_syariah", 0))
-                )))             AS "gap",
+                ))             AS "gap",
                 1               AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result
 
             UNION ALL
 
-            -- Row konven
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_KONVEN'    AS "column_name",
                 TO_CHAR(ROUND("min_port_1"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_port_1" - NVL("kredit_total_konven", 0))))
+                TO_CHAR(ROUND("min_port_1" - NVL("kredit_total_konven", 0)))
                                 AS "gap",
                 2               AS "sort_order",
                 'N'             AS "is_header"
@@ -240,7 +232,7 @@ ckpn AS (
             SELECT
                 r."kode_cabang", r."kode_konsol",
                 '---'                   AS "column_name",
-                ' Portfolio split N/A'  AS "minimum_portofolio",
+                'Portfolio split N/A'   AS "minimum_portofolio",
                 NULL                    AS "gap",
                 2 + n.rn                AS "sort_order",
                 'N'                     AS "is_header"
@@ -251,13 +243,12 @@ ckpn AS (
 
             UNION ALL
 
-            -- Row syariah (perbaikan: tambah TO_CHAR + ROUND)
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_SYARIAH'   AS "column_name",
                 TO_CHAR(ROUND("min_port_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_port_2" - NVL("kredit_total_syariah", 0))))
+                TO_CHAR(ROUND("min_port_2" - NVL("kredit_total_syariah", 0)))
                                 AS "gap",
                 7               AS "sort_order",
                 'N'             AS "is_header"
@@ -267,11 +258,11 @@ ckpn AS (
 
             SELECT
                 r."kode_cabang", r."kode_konsol",
-                '---'           AS "column_name",
-                'N/A'           AS "minimum_portofolio",
-                'N/A'           AS "gap",
-                7 + n.rn        AS "sort_order",
-                'N'             AS "is_header"
+                '---'                   AS "column_name",
+                'Portfolio split N/A'   AS "minimum_portofolio",
+                NULL                    AS "gap",
+                7 + n.rn                AS "sort_order",
+                'N'                     AS "is_header"
             FROM q_result r
             CROSS JOIN (
                 SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4
@@ -304,43 +295,41 @@ ckpn AS (
 
             UNION ALL
 
-            -- Row total minimum DPK
             SELECT
                 "kode_cabang", "kode_konsol",
                 'TOTAL_DPK' AS "column_name",
                 TO_CHAR(ROUND("min_dpk_1" + "min_dpk_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND(
+                TO_CHAR(ROUND(
                     ("min_dpk_1" - NVL("dpk_total_konven",  0)) +
                     ("min_dpk_2" - NVL("dpk_total_syariah", 0))
-                )))              AS "gap",
+                ))               AS "gap",
                 23               AS "sort_order",
                 'Y'              AS "is_header"
             FROM q_result
 
             UNION ALL
 
-            -- Row minimum DPK konven
             SELECT
                 "kode_cabang", "kode_konsol",
                 'DPK_KONVEN' AS "column_name",
                 TO_CHAR(ROUND("min_dpk_1"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_dpk_1" - NVL("dpk_total_konven", 0))))
+                TO_CHAR(ROUND("min_dpk_1" - NVL("dpk_total_konven", 0)))
                                 AS "gap",
-                24                AS "sort_order",
-                'N'               AS "is_header"
+                24              AS "sort_order",
+                'N'             AS "is_header"
             FROM q_result
 
             UNION ALL
 
             SELECT
                 r."kode_cabang", r."kode_konsol",
-                '---'           AS "column_name",
-                'N/A'           AS "minimum_portofolio",
-                'N/A'           AS "gap",
-                24 + n.rn       AS "sort_order",
-                'N'             AS "is_header"
+                '---'                   AS "column_name",
+                'Portfolio split N/A'   AS "minimum_portofolio",
+                NULL                    AS "gap",
+                24 + n.rn               AS "sort_order",
+                'N'                     AS "is_header"
             FROM q_result r
             CROSS JOIN (
                 SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3
@@ -348,13 +337,12 @@ ckpn AS (
 
             UNION ALL
 
-            -- Row minimum DPK syariah
             SELECT
                 "kode_cabang", "kode_konsol",
                 'DPK_SYARIAH'   AS "column_name",
                 TO_CHAR(ROUND("min_dpk_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_dpk_2" - NVL("dpk_total_syariah", 0))))
+                TO_CHAR(ROUND("min_dpk_2" - NVL("dpk_total_syariah", 0)))
                                 AS "gap",
                 28              AS "sort_order",
                 'N'             AS "is_header"
@@ -364,11 +352,11 @@ ckpn AS (
 
             SELECT
                 r."kode_cabang", r."kode_konsol",
-                '---'           AS "column_name",
-                'N/A'           AS "minimum_portofolio",
-                'N/A'           AS "gap",
-                28 + n.rn       AS "sort_order",
-                'N'             AS "is_header"
+                '---'                   AS "column_name",
+                'Portfolio split N/A'   AS "minimum_portofolio",
+                NULL                    AS "gap",
+                28 + n.rn               AS "sort_order",
+                'N'                     AS "is_header"
             FROM q_result r
             CROSS JOIN (
                 SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3
@@ -407,7 +395,7 @@ ckpn AS (
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
                 41 + n.rn       AS "sort_order",
-                'N'             AS "is_header"
+                'Y'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
                 SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4
@@ -421,24 +409,10 @@ ckpn AS (
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
                 46 + n.rn       AS "sort_order",
-                'Y'             AS "is_header"
-            FROM q_result r
-            CROSS JOIN (
-                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4
-            ) n
-
-            UNION ALL
-
-            SELECT
-                r."kode_cabang", r."kode_konsol",
-                '---'           AS "column_name",
-                'N/A'           AS "minimum_portofolio",
-                'N/A'           AS "gap",
-                51 + n.rn       AS "sort_order",
                 'N'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
-                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 15
+                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 19
             ) n
 
             UNION ALL
@@ -448,7 +422,7 @@ ckpn AS (
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                67              AS "sort_order",
+                66              AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result
 
@@ -459,7 +433,7 @@ ckpn AS (
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                67 + n.rn       AS "sort_order",
+                66 + n.rn       AS "sort_order",
                 'N'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
@@ -473,23 +447,19 @@ ckpn AS (
                 '---'           AS "column_name",
                 'N/A'           AS "minimum_portofolio",
                 'N/A'           AS "gap",
-                77 + n.rn       AS "sort_order",
+                76 + n.rn       AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result r
             CROSS JOIN (
-                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 3
+                SELECT LEVEL AS rn FROM DUAL CONNECT BY LEVEL <= 4
             ) n
         )
-SELECT
-    "kode_cabang",
-    "kode_konsol",
-    "column_name",
-    "minimum_portofolio",
-    "gap",
-    "is_header",
-    "sort_order"
-FROM q_rows
-ORDER BY
-    "kode_cabang",
-    "kode_konsol",
-    "sort_order";
+        SELECT
+            "minimum_portofolio" as minimum_portofolio,
+            "gap" as gap,
+            "is_header" as is_header
+        FROM q_rows
+        ORDER BY
+            "kode_cabang",
+            "kode_konsol",
+            "sort_order";

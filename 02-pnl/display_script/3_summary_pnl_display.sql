@@ -129,6 +129,7 @@ fbi AS (
         SUM("fbi_bank_garansi")      AS "fbi_bank_garansi",
         SUM("fbi_admin_kredit")      AS "fbi_admin_kredit",
         SUM("fbi_ker_pihak_lain")    AS "fbi_ker_pihak_lain",
+        SUM("fbi_m2m_frx_sb")        AS "fbi_m2m_frx_sb",
         SUM("fbi_lainnya")           AS "fbi_lainnya"
     FROM BJKT_PNL_FEE_BASED_INCOME_MV
     WHERE "periode" >= TO_DATE(:P1000_PERIOD_FROM, 'DD-MONTH-YYYY', 'NLS_DATE_LANGUAGE=ENGLISH')
@@ -266,6 +267,7 @@ SELECT
     (fbi."fbi_bank_garansi")       AS "fbi_bank_garansi",
     (fbi."fbi_admin_kredit")       AS "fbi_admin_kredit",
     (fbi."fbi_ker_pihak_lain")     AS "fbi_ker_pihak_lain",
+    (fbi."fbi_m2m_frx_sb")         AS "fbi_m2m_frx_sb",
     (fbi."fbi_lainnya")            AS "fbi_lainnya",
 
     -- Direct OPEX

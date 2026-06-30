@@ -1,0 +1,49 @@
+Q: Aplikasi digunakan pada setiap cabang, bagaimana caranya setiap transaksi dapat dikenali dilakukann oleh cabang tertentu?
+A: 
+- Menambahkan query parameter pada url dengan isinya adalah kode cabang yang telah  dienkrip dan diambil 10 angka pertamanya
+- Perlu ditambahkan table materialized view master untuk kode cabang yang akan ditampilkan pada query parameter
+- Pada halaman form input nasabah tampilkan nama cabang untuk menyatakan bahwa nasabah sedang membuka url pada cabang yang dikunjungi
+- Buat function untuk generate url dan qr code yang digunakan untuk akses aplikasi tiap cabang
+
+Q: Bagaimana caranya membedakan setiap transaksi berdasarkan kode referal?
+A: 
+- Buat table source baru untuk transaksi
+CREATE TABLE BJKT_DIGSLIP_TRANSAKSI_REFERAL (
+    ID_REFERAL       NUMBER GENERATED ALWAYS AS IDENTITY,
+    KODE_REFERAL     VARCHAR2(10) NOT NULL,
+    TIPE_TRANSAKSI   VARCHAR2(100) NOT NULL, -- SETOR_TUNAI, TARIK_TUNAI, PINDAH_BUKU, KIRIMAN_UANG_SKN, KIRIMAN_UANG_RTGS,  
+    ID_TRANSAKSI     NUMBER NOT NULL, -- Refer ke tabel transaksi nasabah
+    KODE_CABANG      VARCHAR2(20),
+    STATUS           VARCHAR2(20) DEFAULT 'PENDING', -- PENDING, DIPROSES, SELESAI, EXPIRED
+    TANGGAL_DIBUAT   TIMESTAMP DEFAULT SYSTIMESTAMP,
+    TANGGAL_EXPIRED  TIMESTAMP,
+    TANGGAL_DIPROSES TIMESTAMP,
+    ID_TELLER        VARCHAR2(100),
+    CONSTRAINT BJKT_DIGSLIP_TRANSAKSI_REFERAL_PK PRIMARY KEY (ID_REFERAL)
+);
+
+CREATE INDEX BJKT_DIGSLIP_TRANSAKSI_REFERAL_I1 ON BJKT_DIGSLIP_TRANSAKSI_REFERAL(KODE_REFERAL, STATUS);
+
+- Buat logic untuk generate kode referal, cek referal tidak boleh digunakan ulang selama masih dalam proses atau belum expired (6 Jam) dan berdasarkan kode cabang
+CREATE OR REPLACE FUNCTION BJKT_GENERATE_KODE_REFERAL
+    RETURN VARCHAR2
+IS
+    v_kode VARCHAR2(10);
+    v_exists NUMBER;
+BEGIN
+    LOOP
+        -- Generate 6-8 digit random/sequential, hindari karakter ambigu (0/O, 1/I)
+        v_kode := UPPER(DBMS_RANDOM.STRING('X', 6));
+        
+        -- Pastikan tidak bertabrakan dengan kode yang masih PENDING/DIPROSES
+        SELECT COUNT(*) INTO v_exists
+        FROM BJKT_DIGSLIP_TRANSAKSI_REFERAL
+        WHERE KODE_REFERAL = v_kode
+        AND STATUS IN ('PENDING', 'DIPROSES');
+        
+        EXIT WHEN v_exists = 0;
+    END LOOP;
+    
+    RETURN v_kode;
+END;
+/

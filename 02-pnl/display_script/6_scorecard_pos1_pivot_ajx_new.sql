@@ -19,8 +19,13 @@ BEGIN
 
     FOR r IN (
         WITH
+        cbg AS (
+            SELECT "kode_cabang_akhir" AS "kode_cabang", "kode_konsol"
+            FROM BJKT_BRANCHES_MV
+            WHERE "kode_konsol" = l_kc AND "kode_cabang_akhir" = l_cabang
+            GROUP BY "kode_cabang_akhir", "kode_konsol"
+        ),
         pbt AS (
-            -- PEND_BUNGA_TOTAL
             SELECT
                 "kode_cabang",
                 "kode_konsol",
@@ -35,12 +40,10 @@ BEGIN
         cre AS (
             SELECT
                 "kode_cabang",
-                MAX("nama_cabang")          AS "nama_cabang",
-                MAX("kode_konsol")          AS "kode_konsol",
-                MAX("nama_konsol")          AS "nama_konsol",
+                "kode_konsol"               AS "kode_konsol",
                 SUM("total_kredit")         AS "total_kredit",
-                SUM("kredit_total_konven")  AS "kredit_total_konven", -- KREDIT_KONVEN
-                SUM("kredit_total_syariah") AS "kredit_total_syariah" -- KREDIT_SYARIAH
+                SUM("kredit_total_konven")  AS "kredit_total_konven",
+                SUM("kredit_total_syariah") AS "kredit_total_syariah"
             FROM BJKT_PNL_AVG_BAL_CREDIT_MV
             WHERE "periode" >= l_from_date
             AND "periode" <  l_to_date
@@ -53,8 +56,8 @@ BEGIN
                 "kode_cabang",
                 "kode_konsol",
                 SUM("total_dpk")            AS "total_dpk",
-                SUM("dpk_total_konven")     AS "dpk_total_konven", -- DPK_KONVEN
-                SUM("dpk_total_syariah")    AS "dpk_total_syariah" -- DPK_SYARIAH
+                SUM("dpk_total_konven")     AS "dpk_total_konven",
+                SUM("dpk_total_syariah")    AS "dpk_total_syariah"
             FROM BJKT_PNL_AVG_BAL_DPK_MV
             WHERE "periode" >= l_from_date
             AND "periode" <  l_to_date
@@ -66,7 +69,7 @@ BEGIN
             SELECT
                 "kode_cabang",
                 "kode_konsol",
-                SUM("total_beban_bunga")            AS "total_beban_bunga" -- BEBAN_BUNGA_TOTAL
+                SUM("total_beban_bunga")            AS "total_beban_bunga"
             FROM BJKT_PNL_BEBAN_BUNGA_TOTAL_MV
             WHERE "periode" >= l_from_date
             AND "periode" <  l_to_date
@@ -75,7 +78,6 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         fi AS (
-            -- FTP_INCOME
             SELECT
                 "kode_cabang",
                 "kode_konsol",
@@ -88,7 +90,6 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         fc AS (
-            -- FTP_CHARGE_LOAN
             SELECT
                 "kode_cabang",
                 "kode_konsol",
@@ -137,7 +138,6 @@ BEGIN
             GROUP BY "kode_cabang", "kode_konsol"
         ),
         cre_por AS (
-            -- KREDIT_OF_PORTOFOLIO
             SELECT
                 cre."kode_cabang",
                 cre."kode_konsol",
@@ -149,7 +149,6 @@ BEGIN
                 AND dpk."kode_konsol" = cre."kode_konsol"
         ),
         min_nii AS (
-            -- MINIMUM_NII
             SELECT
                 opx."kode_cabang",
                 opx."kode_konsol",
@@ -168,107 +167,81 @@ BEGIN
         ),
         q_result AS (
             SELECT
-                -- 1. Metadata Cabang & Konsol
-                cre."kode_cabang",
-                cre."kode_konsol",
+                cbg."kode_cabang",
+                cbg."kode_konsol",
                 cre."kredit_total_konven",
                 cre."kredit_total_syariah",
                 dpk."dpk_total_konven",
                 dpk."dpk_total_syariah",
 
-                -- 2. Kolom Kalkulasi Minimum Portofolio Kredit Konven
-                -- MINIMUM_PORTO_KRE_KONVEN
-                -- KREDIT_OF_PORTOFOLIO*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_KONVEN)+(1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_KONVEN))
-                ROUND(
-                    NVL(cre_por."cre_por_val", 0)*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_konven", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_konven", 0)))
-                ) AS "min_port_1",
+                NULLIF(ROUND(
+                    cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven"))
+                ), 0) AS "min_port_1",
 
-                -- 3. Kolom Kalkulasi Gap Kredit Konven
-                -- GAP_KRE_KONVEN =
-                -- KREDIT_KONVEN-MINIMUM_PORTO_KRE_KONVEN
-                ROUND (
-                    NVL(cre."kredit_total_konven", 0) -
-                    (NVL(cre_por."cre_por_val", 0)*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_konven", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_konven", 0))))
-                ) AS "gap_kre_konven",
+                NULLIF(ROUND (
+                    cre."kredit_total_konven" -
+                    (cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven")))
+                ), 0) AS "gap_kre_konven",
 
-                -- 4. Kolom Kalkulasi Minimum Portofolio Kredit Syariah
-                -- MINIMUM_PORTO_KRE_SYARIAH =
-                -- (KREDIT_OF_PORTOFOLIO*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_SYARIAH)+(1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_SYARIAH))
-                ROUND(
-                    NVL(cre_por."cre_por_val", 0)*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_syariah", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_syariah", 0)))
-                ) AS "min_port_2",
+                NULLIF(ROUND(
+                    cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "min_port_2",
 
-                -- 5. Kolom Kalkulasi Gap Kredit Syariah
-                -- GAP_KRE_SYARIAH =
-                -- KREDIT_SYARIAH-MINIMUM_PORTO_KRE_SYARIAH
-                ROUND(
-                    NVL(cre."kredit_total_syariah", 0) -
-                    NVL(cre_por."cre_por_val", 0)*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_syariah", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_syariah", 0)))
-                ) AS "gap_kre_syariah",
+                NULLIF(ROUND(
+                    cre."kredit_total_syariah" -
+                    cre_por."cre_por_val"*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "gap_kre_syariah",
 
-                -- 6. Kolom Kalkulasi Minimum Portofolio DPK Konven
-                -- MINIMUM_PORTO_DPK_KONVEN =
-                -- (1-KREDIT_OF_PORTOFOLIO)*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_KONVEN)+(1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_KONVEN))
-                ROUND(
-                    (1-NVL(cre_por."cre_por_val", 0))*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_konven", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_konven", 0)))
-                ) AS "min_dpk_1",
+                NULLIF(ROUND(
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven"))
+                ), 0) AS "min_dpk_1",
 
-                -- 7. Kolom Kalkulasi Gap DPK Konven
-                -- GAP_DPK_KONVEN =
-                -- DPK_KONVEN - MINIMUM_PORTO_DPK_KONVEN
-                ROUND(
-                    NVL(dpk."dpk_total_konven", 0) -
-                    (1-NVL(cre_por."cre_por_val", 0))*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_konven", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_konven", 0)))
-                ) AS "gap_dpk_konven",
+                NULLIF(ROUND(
+                    dpk."dpk_total_konven" -
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_konven")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_konven"))
+                ), 0) AS "gap_dpk_konven",
 
-                -- 8. Kolom Kalkulasi Minimum Portofolio DPK Syariah
-                -- MINIMUM_PORTO_DPK_SYARIAH =
-                -- (1-KREDIT_OF_PORTOFOLIO)*ABS(MINIMUM_NII)/(KREDIT_OF_PORTOFOLIO*((PEND_BUNGA_TOTAL+FTP_CHARGE_LOAN)/KREDIT_SYARIAH)+(1-KREDIT_OF_PORTOFOLIO)*((BEBAN_BUNGA_TOTAL+FTP_INCOME)/DPK_SYARIAH))
-                ROUND(
-                    (1-NVL(cre_por."cre_por_val", 0))*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_syariah", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_syariah", 0)))
-                ) AS "min_dpk_2",
+                NULLIF(ROUND(
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "min_dpk_2",
 
-                -- 9. Kolom Kalkulasi Gap DPK Konven
-                -- GAP_DPK_SYARIAH =
-                -- DPK_SYARIAH - MINIMUM_PORTO_DPK_SYARIAH
-                ROUND(
-                    NVL(dpk."dpk_total_syariah", 0) -
-                    (1-NVL(cre_por."cre_por_val", 0))*NVL(min_nii."min_nii_val", 0)/(NVL(cre_por."cre_por_val", 0)*((NVL(pbt."total_pen_bunga", 0)+NVL(fc."ftp_charge_loan", 0))/NVL(cre."kredit_total_syariah", 0))+(1-NVL(cre_por."cre_por_val", 0))*((NVL(bbt."total_beban_bunga", 0)+NVL(fi."ftp_income_dpk", 0))/NVL(dpk."dpk_total_syariah", 0)))
-                ) AS "gap_dpk_syariah"
+                NULLIF(ROUND(
+                    dpk."dpk_total_syariah" -
+                    (1-cre_por."cre_por_val")*min_nii."min_nii_val"/(cre_por."cre_por_val"*((pbt."total_pen_bunga"+fc."ftp_charge_loan")/cre."kredit_total_syariah")+(1-cre_por."cre_por_val")*((bbt."total_beban_bunga"+fi."ftp_income_dpk")/dpk."dpk_total_syariah"))
+                ), 0) AS "gap_dpk_syariah"
 
-            FROM cre
-            LEFT JOIN cre_por ON cre."kode_cabang" = cre_por."kode_cabang" AND cre."kode_konsol" = cre_por."kode_konsol"
-            LEFT JOIN min_nii ON cre."kode_cabang" = min_nii."kode_cabang" AND cre."kode_konsol" = min_nii."kode_konsol"
-            LEFT JOIN pbt     ON cre."kode_cabang" = pbt."kode_cabang"     AND cre."kode_konsol" = pbt."kode_konsol"
-            LEFT JOIN bbt     ON cre."kode_cabang" = bbt."kode_cabang"     AND cre."kode_konsol" = bbt."kode_konsol"
-            LEFT JOIN fi      ON cre."kode_cabang" = fi."kode_cabang"      AND cre."kode_konsol" = fi."kode_konsol"
-            LEFT JOIN fc      ON cre."kode_cabang" = fc."kode_cabang"      AND cre."kode_konsol" = fc."kode_konsol"
-            LEFT JOIN dpk     ON cre."kode_cabang" = dpk."kode_cabang"     AND cre."kode_konsol" = dpk."kode_konsol"
+            FROM cbg
+            LEFT JOIN cre     ON cbg."kode_cabang" = cre."kode_cabang"     AND cbg."kode_konsol" = cre."kode_konsol"
+            LEFT JOIN cre_por ON cbg."kode_cabang" = cre_por."kode_cabang" AND cbg."kode_konsol" = cre_por."kode_konsol"
+            LEFT JOIN min_nii ON cbg."kode_cabang" = min_nii."kode_cabang" AND cbg."kode_konsol" = min_nii."kode_konsol"
+            LEFT JOIN pbt     ON cbg."kode_cabang" = pbt."kode_cabang"     AND cbg."kode_konsol" = pbt."kode_konsol"
+            LEFT JOIN bbt     ON cbg."kode_cabang" = bbt."kode_cabang"     AND cbg."kode_konsol" = bbt."kode_konsol"
+            LEFT JOIN fi      ON cbg."kode_cabang" = fi."kode_cabang"      AND cbg."kode_konsol" = fi."kode_konsol"
+            LEFT JOIN fc      ON cbg."kode_cabang" = fc."kode_cabang"      AND cbg."kode_konsol" = fc."kode_konsol"
+            LEFT JOIN dpk     ON cbg."kode_cabang" = dpk."kode_cabang"     AND cbg."kode_konsol" = dpk."kode_konsol"
         ),
         q_rows AS (
-            -- Row total
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_TOTAL'     AS "column_name",
                 TO_CHAR(ROUND("min_port_1" + "min_port_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND(
-                    ("min_port_1" - NVL("kredit_total_konven",  0)) +
-                    ("min_port_2" - NVL("kredit_total_syariah", 0))
-                )))             AS "gap",
+                TO_CHAR(ROUND(
+                    (NVL("kredit_total_konven",  0) - "min_port_1") +
+                    (NVL("kredit_total_syariah", 0) - "min_port_2")
+                ))             AS "gap",
                 1               AS "sort_order",
                 'Y'             AS "is_header"
             FROM q_result
 
             UNION ALL
 
-            -- Row konven
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_KONVEN'    AS "column_name",
                 TO_CHAR(ROUND("min_port_1"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_port_1" - NVL("kredit_total_konven", 0))))
+                TO_CHAR(ROUND(NVL("kredit_total_konven", 0) - "min_port_1"))
                                 AS "gap",
                 2               AS "sort_order",
                 'N'             AS "is_header"
@@ -290,13 +263,12 @@ BEGIN
 
             UNION ALL
 
-            -- Row syariah (perbaikan: tambah TO_CHAR + ROUND)
             SELECT
                 "kode_cabang", "kode_konsol",
                 'CRE_SYARIAH'   AS "column_name",
                 TO_CHAR(ROUND("min_port_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_port_2" - NVL("kredit_total_syariah", 0))))
+                TO_CHAR(ROUND(NVL("kredit_total_syariah", 0) - "min_port_2"))
                                 AS "gap",
                 7               AS "sort_order",
                 'N'             AS "is_header"
@@ -343,32 +315,30 @@ BEGIN
 
             UNION ALL
 
-            -- Row total minimum DPK
             SELECT
                 "kode_cabang", "kode_konsol",
                 'TOTAL_DPK' AS "column_name",
                 TO_CHAR(ROUND("min_dpk_1" + "min_dpk_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND(
-                    ("min_dpk_1" - NVL("dpk_total_konven",  0)) +
-                    ("min_dpk_2" - NVL("dpk_total_syariah", 0))
-                )))              AS "gap",
+                TO_CHAR(ROUND(
+                    (NVL("dpk_total_konven",  0) - "min_dpk_1") +
+                    (NVL("dpk_total_syariah", 0) - "min_dpk_2")
+                ))               AS "gap",
                 23               AS "sort_order",
                 'Y'              AS "is_header"
             FROM q_result
 
             UNION ALL
 
-            -- Row minimum DPK konven
             SELECT
                 "kode_cabang", "kode_konsol",
                 'DPK_KONVEN' AS "column_name",
                 TO_CHAR(ROUND("min_dpk_1"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_dpk_1" - NVL("dpk_total_konven", 0))))
+                TO_CHAR(ROUND(NVL("dpk_total_konven", 0) - "min_dpk_1"))
                                 AS "gap",
-                24                AS "sort_order",
-                'N'               AS "is_header"
+                24              AS "sort_order",
+                'N'             AS "is_header"
             FROM q_result
 
             UNION ALL
@@ -387,13 +357,12 @@ BEGIN
 
             UNION ALL
 
-            -- Row minimum DPK syariah
             SELECT
                 "kode_cabang", "kode_konsol",
                 'DPK_SYARIAH'   AS "column_name",
                 TO_CHAR(ROUND("min_dpk_2"))
                                 AS "minimum_portofolio",
-                TO_CHAR(ABS(ROUND("min_dpk_2" - NVL("dpk_total_syariah", 0))))
+                TO_CHAR(ROUND(NVL("dpk_total_syariah", 0) - "min_dpk_2"))
                                 AS "gap",
                 28              AS "sort_order",
                 'N'             AS "is_header"
